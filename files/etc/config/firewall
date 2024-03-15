@@ -1,0 +1,404 @@
+
+config defaults
+	option input 'REJECT'
+	option output 'ACCEPT'
+	option forward 'REJECT'
+	option flow_offloading '1'
+	option flow_offloading_hw '1'
+
+config zone
+	option name 'lan'
+	option input 'ACCEPT'
+	option output 'ACCEPT'
+	option forward 'ACCEPT'
+	list network 'lan'
+
+config zone
+	option name 'wan'
+	option input 'DROP'
+	option output 'ACCEPT'
+	option forward 'REJECT'
+	option masq '1'
+	option mtu_fix '1'
+	list network 'wan'
+	list network 'wan6'
+
+config forwarding
+	option src 'lan'
+	option dest 'wan'
+
+config rule
+	option name 'Allow-DHCP-Renew'
+	option src 'wan'
+	option proto 'udp'
+	option dest_port '68'
+	option target 'ACCEPT'
+	option family 'ipv4'
+
+config rule
+	option name 'Allow-Ping'
+	option src 'wan'
+	option proto 'icmp'
+	option icmp_type 'echo-request'
+	option family 'ipv4'
+	option target 'ACCEPT'
+	option enabled '0'
+
+config rule
+	option name 'Allow-IGMP'
+	option src 'wan'
+	option proto 'igmp'
+	option family 'ipv4'
+	option target 'ACCEPT'
+	option enabled '0'
+
+config rule
+	option name 'Allow-DHCPv6'
+	option src 'wan'
+	option proto 'udp'
+	option dest_port '546'
+	option family 'ipv6'
+	option target 'ACCEPT'
+	option enabled '0'
+
+config rule
+	option name 'Allow-MLD'
+	option src 'wan'
+	option proto 'icmp'
+	option src_ip 'fe80::/10'
+	list icmp_type '130/0'
+	list icmp_type '131/0'
+	list icmp_type '132/0'
+	list icmp_type '143/0'
+	option family 'ipv6'
+	option target 'ACCEPT'
+	option enabled '0'
+
+config rule
+	option name 'Allow-ICMPv6-Input'
+	option src 'wan'
+	option proto 'icmp'
+	list icmp_type 'echo-request'
+	list icmp_type 'echo-reply'
+	list icmp_type 'destination-unreachable'
+	list icmp_type 'packet-too-big'
+	list icmp_type 'time-exceeded'
+	list icmp_type 'bad-header'
+	list icmp_type 'unknown-header-type'
+	list icmp_type 'router-solicitation'
+	list icmp_type 'neighbour-solicitation'
+	list icmp_type 'router-advertisement'
+	list icmp_type 'neighbour-advertisement'
+	option limit '1000/sec'
+	option family 'ipv6'
+	option target 'ACCEPT'
+	option enabled '0'
+
+config rule
+	option name 'Allow-ICMPv6-Forward'
+	option src 'wan'
+	option dest '*'
+	option proto 'icmp'
+	list icmp_type 'echo-request'
+	list icmp_type 'echo-reply'
+	list icmp_type 'destination-unreachable'
+	list icmp_type 'packet-too-big'
+	list icmp_type 'time-exceeded'
+	list icmp_type 'bad-header'
+	list icmp_type 'unknown-header-type'
+	option limit '1000/sec'
+	option family 'ipv6'
+	option target 'ACCEPT'
+	option enabled '0'
+
+config rule
+	option name 'Allow-IPSec-ESP'
+	option src 'wan'
+	option dest 'lan'
+	option proto 'esp'
+	option target 'ACCEPT'
+	option enabled '0'
+
+config rule
+	option name 'Allow-ISAKMP'
+	option src 'wan'
+	option dest 'lan'
+	option dest_port '500'
+	option proto 'udp'
+	option target 'ACCEPT'
+	option enabled '0'
+
+config zone
+	option name 'aria'
+	option input 'ACCEPT'
+	option output 'ACCEPT'
+	option forward 'REJECT'
+	list network 'aria'
+
+config zone
+	option name 'pcnet'
+	option input 'ACCEPT'
+	option output 'ACCEPT'
+	option forward 'REJECT'
+	list network 'pcnet'
+
+config zone
+	option name 'wlan0'
+	option input 'ACCEPT'
+	option output 'ACCEPT'
+	option forward 'REJECT'
+	list network 'wlan0'
+
+config zone
+	option name 'wlan1'
+	option input 'ACCEPT'
+	option output 'ACCEPT'
+	option forward 'REJECT'
+	list network 'wlan1'
+
+config zone
+	option name 'zigbee'
+	option input 'ACCEPT'
+	option output 'ACCEPT'
+	option forward 'ACCEPT'
+	list network 'zigbee'
+
+config forwarding
+	option src 'zigbee'
+	option dest 'wan'
+
+config forwarding
+	option src 'aria'
+	option dest 'wan'
+
+config zone
+	option name 'wgclient'
+	option input 'DROP'
+	option output 'ACCEPT'
+	option forward 'REJECT'
+	option masq '1'
+	option mtu_fix '1'
+	list network 'wgclient'
+
+config zone
+	option name 'wgserver'
+	option input 'ACCEPT'
+	option output 'ACCEPT'
+	option forward 'ACCEPT'
+	option masq '1'
+	option mtu_fix '1'
+	list network 'wgserver'
+
+config forwarding
+	option src 'wgserver'
+	option dest 'wan'
+
+config forwarding
+	option src 'wgserver'
+	option dest 'wgclient'
+
+config forwarding
+	option src 'lan'
+	option dest 'wgserver'
+
+config rule
+	option name 'allow-printer'
+	option src 'pcnet'
+	option dest 'zigbee'
+	option target 'ACCEPT'
+	list dest_ip '10.33.77.20'
+
+config forwarding
+	option src 'pcnet'
+	option dest 'wgclient'
+
+config rule
+	option name 'Allow-management'
+	list proto 'all'
+	option src 'pcnet'
+	option dest 'lan'
+	list dest_ip '10.234.53.3'
+	list dest_ip '10.234.53.10'
+	list dest_ip '10.234.53.15'
+	list dest_ip '10.234.53.20'
+	list dest_ip '10.234.53.25'
+	option target 'ACCEPT'
+
+config rule
+	option name 'Allow-printer-wlan0'
+	option src 'wlan0'
+	option dest 'zigbee'
+	list dest_ip '10.33.77.20'
+	option target 'ACCEPT'
+
+config redirect
+	option target 'DNAT'
+	option name 'Forward-wgserver'
+	option src 'wan'
+	option src_dport '4443'
+	option dest 'wgserver'
+	list proto 'udp'
+	option dest_ip '10.6.7.1'
+
+config redirect
+	option target 'DNAT'
+	option src 'wgserver'
+	option src_dport '4789'
+	option name 'allow-vxlan-port'
+
+config redirect
+	option dest 'wifivpn'
+	option target 'DNAT'
+	option src 'wlan0'
+	option src_dport '51820'
+	option dest_ip '10.39.95.1'
+	option name 'Allow-wifivpn'
+	option dest_port '51820'
+	option enabled '0'
+
+config redirect
+	option target 'DNAT'
+	option name 'force-dns-pcnet'
+	option src 'pcnet'
+	option src_dport '53'
+
+config redirect
+	option target 'DNAT'
+	option name 'force-dns-wlan0'
+	option src 'wlan0'
+	option src_dport '53'
+
+config zone
+	option name 'ayaneo'
+	option input 'ACCEPT'
+	option output 'ACCEPT'
+	option forward 'REJECT'
+	list network 'ayaneo'
+
+config zone
+	option name 'tvnet'
+	option input 'ACCEPT'
+	option output 'ACCEPT'
+	option forward 'REJECT'
+	list network 'tvnet'
+
+config forwarding
+	option src 'tvnet'
+	option dest 'wan'
+
+config forwarding
+	option src 'ayaneo'
+	option dest 'wgclient'
+
+config redirect
+	option target 'DNAT'
+	option name 'force-dns-zigbee'
+	option src 'zigbee'
+	option src_dport '53'
+
+config redirect
+	option target 'DNAT'
+	option name 'force-dns-wlan1'
+	option src 'wlan1'
+	option src_dport '53'
+
+config redirect
+	option target 'DNAT'
+	option name 'force-dns-tvnet'
+	option src 'tvnet'
+	option src_dport '53'
+
+config rule
+	option name 'Allow-pbr-wan'
+	option src '*'
+	option dest '*'
+	option target 'ACCEPT'
+	option mark '0x010000'
+
+config zone
+	option name 'fakeisp'
+	option input 'ACCEPT'
+	option output 'ACCEPT'
+	option forward 'ACCEPT'
+	option masq '1'
+	option mtu_fix '1'
+	list device 'ppp+'
+	list network 'fakeisp'
+
+config forwarding
+	option src 'fakeisp'
+	option dest 'wgclient'
+
+config zone
+	option name 'iptv'
+	option input 'ACCEPT'
+	option output 'ACCEPT'
+	option forward 'REJECT'
+	list network 'iptv'
+
+config forwarding
+	option src 'iptv'
+	option dest 'wan'
+
+config forwarding
+	option src 'wlan0'
+	option dest 'wgclient'
+
+config zone
+	option name 'wifivpn'
+	option input 'ACCEPT'
+	option output 'ACCEPT'
+	option forward 'REJECT'
+	list network 'wifivpn'
+
+config forwarding
+	option src 'wlan0'
+	option dest 'wifivpn'
+
+config forwarding
+	option src 'wifivpn'
+	option dest 'wgclient'
+
+config forwarding
+	option src 'wlan1'
+	option dest 'wifivpn'
+
+config rule
+	option name 'block-ui'
+	option src 'wlan0'
+	option dest_port '443 80'
+	option target 'DROP'
+
+config rule
+	option name 'block-ui'
+	option src 'wlan1'
+	option dest_port '80 443'
+	option target 'DROP'
+
+config rule
+	option name 'block-ui'
+	option src 'zigbee'
+	option dest_port '443 80'
+	option target 'DROP'
+
+config rule
+	option name 'block-ui'
+	option src 'tvnet'
+	option dest_port '443 80'
+	option target 'DROP'
+
+config rule
+	option src 'wifivpn'
+	option dest 'lan'
+	list dest_ip '10.234.53.3'
+	list dest_ip '10.234.53.10'
+	list dest_ip '10.234.53.15'
+	list dest_ip '10.234.53.25'
+	option target 'ACCEPT'
+
+config include 'pbr'
+	option fw4_compatible '1'
+	option type 'script'
+	option path '/usr/share/pbr/pbr.firewall.include'
+
+
