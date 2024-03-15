@@ -27,7 +27,6 @@ config pbr 'config'
 	list ignored_interface 'br-lan.91'
 	list ignored_interface 'vx0'
 	list ignored_interface 'br-lan.169'
-	list ignored_interface 'docker0'
 	list supported_interface 'wgclient'
 
 config policy
