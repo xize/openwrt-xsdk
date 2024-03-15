@@ -1,5 +1,4 @@
-
-ptions for the PPPoE server
+# options for the PPPoE server
 # LIC: GPL
 require-chap
 login
