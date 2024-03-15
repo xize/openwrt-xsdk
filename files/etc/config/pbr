@@ -1,0 +1,50 @@
+
+config pbr 'config'
+	option enabled '0'
+	option verbosity '2'
+	option strict_enforcement '1'
+	option resolver_set 'dnsmasq.nftset'
+	option ipv6_enabled '0'
+	option boot_timeout '30'
+	option nft_file_mode '1'
+	option rule_create_option 'add'
+	option procd_reload_delay '1'
+	option webui_show_ignore_target '1'
+	list webui_supported_protocol 'all'
+	list webui_supported_protocol 'tcp'
+	list webui_supported_protocol 'udp'
+	list webui_supported_protocol 'tcp udp'
+	list webui_supported_protocol 'icmp'
+	list ignored_interface 'wgserver'
+	list ignored_interface 'br-lan.6'
+	list ignored_interface 'br-lan.23'
+	list ignored_interface 'br-lan.49'
+	list ignored_interface 'br-lan.50'
+	list ignored_interface 'br-lan.51'
+	list ignored_interface 'br-lan.52'
+	list ignored_interface 'br-lan.53'
+	list ignored_interface 'br-lan.90'
+	list ignored_interface 'br-lan.91'
+	list ignored_interface 'vx0'
+	list ignored_interface 'br-lan.169'
+	list ignored_interface 'docker0'
+	list supported_interface 'wgclient'
+
+config policy
+	option name 'allow-maintenance'
+	option src_addr '10.39.95.1/24 10.6.7.0/24 10.10.10.0/24 10.34.79.0/24 10.234.80.0/24'
+	option interface 'ignore'
+	option dest_addr '10.234.53.10/32 10.234.53.20/32 10.234.53.25/32 10.234.53.3/32 10.234.53.15/32 10.33.77.20/32'
+
+config policy
+	option name 'domain-whitelist'
+	option dest_addr 'aqara.com reddit.com'
+	option interface 'wan'
+	option src_addr '10.87.62.0/24 10.39.95.1/24 10.6.7.0/24 10.34.79.0/24 10.234.80.0/24 10.234.81.0/24'
+
+config policy
+	option name 'route-vpn'
+	option src_addr '10.10.10.0/24 10.39.95.1/24 10.87.62.0/24 10.6.7.0/24 10.34.79.0/24 10.234.80.0/24 10.234.81.0/24'
+	option interface 'wgclient'
+
+
