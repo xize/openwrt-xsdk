@@ -1,0 +1,23 @@
+config pppoe_server
+	option interface 'fakeisp'
+	option ac_name 'access-concentrator-name'
+	list service_name 'service-name1'
+	list service_name 'service-name2'
+	option maxsessionsperpeer '10'
+	option localip '10.10.10.1'
+	option firstremoteip '10.10.10.2'
+	option maxsessions '64'
+	option optionsfile '/etc/ppp/pppoe-server-options'
+	option unit '0'
+	option offset '0'
+	option timeout '60'
+	option mss '1500'
+	option sync '1'
+
+#config pppoe_relay
+#	list server_interface eth1
+#	list client_interface eth0
+#	list both_interface eth2
+#	option maxsessions 64
+#	option timeout 60
+

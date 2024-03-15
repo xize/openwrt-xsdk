@@ -1,0 +1,12 @@
+
+ptions for the PPPoE server
+# LIC: GPL
+require-chap
+login
+ms-dns 10.10.10.1
+lcp-echo-interval 10
+lcp-echo-failure 2
+mru 1492
+mtu 1492
+
+
