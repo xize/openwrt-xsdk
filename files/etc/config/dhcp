@@ -1,0 +1,97 @@
+
+config dnsmasq
+	option domainneeded '1'
+	option localise_queries '1'
+	option rebind_protection '0'
+	option local '/lan/'
+	option domain 'lan'
+	option expandhosts '1'
+	option cachesize '1000'
+	option authoritative '1'
+	option readethers '1'
+	option leasefile '/tmp/dhcp.leases'
+	option resolvfile '/tmp/resolv.conf.d/resolv.conf.auto'
+	option localservice '0'
+	option ednspacket_max '1232'
+	option sequential_ip '1'
+	option boguspriv '0'
+
+config dhcp 'lan'
+	option interface 'lan'
+	option start '2'
+	option limit '150'
+	option leasetime '12h'
+	option dhcpv4 'server'
+
+config dhcp 'wan'
+	option interface 'wan'
+	option ignore '1'
+
+config odhcpd 'odhcpd'
+	option maindhcp '0'
+	option leasefile '/tmp/hosts/odhcpd'
+	option leasetrigger '/usr/sbin/odhcpd-update'
+	option loglevel '4'
+
+config dhcp 'aria'
+	option interface 'aria'
+	option start '2'
+	option limit '150'
+	option leasetime '12h'
+
+config dhcp 'pcnet'
+	option interface 'pcnet'
+	option start '2'
+	option limit '150'
+	option leasetime '12h'
+
+config dhcp 'wlan0'
+	option interface 'wlan0'
+	option start '2'
+	option limit '150'
+	option leasetime '12h'
+
+config dhcp 'wlan1'
+	option interface 'wlan1'
+	option start '2'
+	option limit '150'
+	option leasetime '12h'
+
+config dhcp 'zigbee'
+	option interface 'zigbee'
+	option start '2'
+	option limit '150'
+	option leasetime '12h'
+
+config dhcp 'ayaneo'
+	option interface 'ayaneo'
+	option start '2'
+	option limit '150'
+	option leasetime '12h'
+
+config dhcp 'tvnet'
+	option interface 'tvnet'
+	option start '2'
+	option limit '150'
+	option leasetime '12h'
+
+config host
+	option name 'iptv'
+	option ip '192.168.196.2'
+	list mac '5C:0F:FB:02:AC:1A'
+
+config dhcp 'fakeisp'
+	option interface 'fakeisp'
+	option ignore '1'
+	option start '2'
+	option limit '150'
+	option leasetime '12h'
+	list dhcp_option '6,10.10.10.1'
+
+config dhcp 'iptv'
+	option interface 'iptv'
+	option start '2'
+	option limit '10'
+	option leasetime '12h'
+
+
