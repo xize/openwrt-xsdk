@@ -1,0 +1,217 @@
+config interface 'loopback'
+	option device 'lo'
+	option proto 'static'
+	option ipaddr '127.0.0.1'
+	option netmask '255.0.0.0'
+
+config globals 'globals'
+	option packet_steering '1'
+
+config device
+	option name 'br-lan'
+	option type 'bridge'
+	list ports 'lan1'
+	list ports 'lan2'
+	list ports 'lan3'
+	list ports 'lan4'
+	list ports 'lan5'
+
+config interface 'lan'
+	option device 'br-lan.169'
+	option proto 'static'
+	option ipaddr '10.234.53.1'
+	option netmask '255.255.255.0'
+	option delegate '0'
+
+config interface 'wan'
+	option device 'eth1.300'
+	option proto 'dhcp'
+	option delegate '0'
+
+config interface 'wan6'
+	option device 'eth1'
+	option proto 'dhcpv6'
+	option disabled '1'
+	option reqaddress 'none'
+	option reqprefix 'no'
+
+config device
+	option type 'bridge'
+	option name 'docker0'
+
+config bridge-vlan
+	option device 'br-lan'
+	option vlan '169'
+	list ports 'lan1:u*'
+	list ports 'lan2:u*'
+	list ports 'lan3:u*'
+	list ports 'lan4:u*'
+	list ports 'lan5:u*'
+
+config bridge-vlan
+	option device 'br-lan'
+	option vlan '6'
+	list ports 'lan3:t'
+
+config bridge-vlan
+	option device 'br-lan'
+	option vlan '49'
+	list ports 'lan2:t'
+	list ports 'lan4:t'
+	list ports 'lan5:t'
+
+config bridge-vlan
+	option device 'br-lan'
+	option vlan '50'
+	list ports 'lan2:t'
+	list ports 'lan4:t'
+	list ports 'lan5:t'
+
+config bridge-vlan
+	option device 'br-lan'
+	option vlan '51'
+	list ports 'lan2:t'
+	list ports 'lan4:t'
+	list ports 'lan5:t'
+
+config bridge-vlan
+	option device 'br-lan'
+	option vlan '52'
+	list ports 'lan2:t'
+	list ports 'lan4:t'
+	list ports 'lan5:t'
+
+config bridge-vlan
+	option device 'br-lan'
+	option vlan '53'
+	list ports 'lan2:t'
+	list ports 'lan4:t'
+	list ports 'lan5:t'
+
+config interface 'aria'
+	option proto 'static'
+	option device 'br-lan.6'
+	option defaultroute '0'
+	option delegate '0'
+	option ipaddr '192.168.99.1'
+	option netmask '255.255.255.0'
+
+config interface 'pcnet'
+	option proto 'static'
+	option device 'br-lan.49'
+	option ipaddr '10.34.79.1'
+	option netmask '255.255.255.0'
+	option defaultroute '0'
+	option delegate '0'
+
+config interface 'wlan0'
+	option proto 'static'
+	option device 'br-wlan0'
+	option ipaddr '10.234.80.1'
+	option netmask '255.255.255.0'
+	option defaultroute '0'
+	option delegate '0'
+
+config interface 'wlan1'
+	option proto 'static'
+	option device 'br-wlan1'
+	option ipaddr '10.234.81.1'
+	option netmask '255.255.255.0'
+	option defaultroute '0'
+	option delegate '0'
+
+config interface 'zigbee'
+	option proto 'static'
+	option device 'br-zigbee'
+	option ipaddr '10.33.77.1'
+	option netmask '255.255.255.0'
+	option defaultroute '0'
+	option delegate '0'
+
+config bridge-vlan
+	option device 'br-lan'
+	option vlan '90'
+	list ports 'lan2:t'
+	list ports 'lan4:t'
+	list ports 'lan5:t'
+
+config interface 'ayaneo'
+	option proto 'static'
+	option device 'br-lan.90'
+	option ipaddr '10.87.62.1'
+	option netmask '255.255.255.0'
+	option defaultroute '0'
+
+config interface 'tvnet'
+	option proto 'static'
+	option device 'br-lan.53'
+	option ipaddr '172.22.33.1'
+	option netmask '255.255.255.0'
+	option defaultroute '0'
+	option delegate '0'
+
+config interface 'vx0'
+	option proto 'vxlan'
+	option force_link '1'
+	option peeraddr '10.6.7.2'
+	option vid '4066'
+	option tunlink 'wgserver'
+	option defaultroute '0'
+	option delegate '0'
+	option ipaddr '10.6.7.1'
+
+config device
+	option type 'bridge'
+	option name 'br-wlan0'
+	option bridge_empty '1'
+	list ports 'br-lan.50'
+	list ports '@vx0.50'
+
+config device
+	option type 'bridge'
+	option name 'br-wlan1'
+	option bridge_empty '1'
+	option ipv6 '0'
+	list ports 'br-lan.51'
+	list ports '@vx0.51'
+
+config bridge-vlan
+	option device 'br-lan'
+	option vlan '91'
+	list ports 'lan2:t'
+	list ports 'lan4:t'
+	list ports 'lan5:t'
+
+config interface 'fakeisp'
+	option proto 'static'
+	option device 'br-lan.91'
+	option ipaddr '10.10.10.1'
+	option netmask '255.255.255.0'
+	option defaultroute '0'
+	option delegate '0'
+
+config device
+	option type 'bridge'
+	option name 'br-zigbee'
+	option bridge_empty '1'
+	option ipv6 '0'
+	list ports 'br-lan.52'
+	list ports '@vx0.52'
+
+config bridge-vlan
+	option device 'br-lan'
+	option vlan '23'
+	list ports 'lan1:t'
+	list ports 'lan2:t'
+	list ports 'lan4:t'
+	list ports 'lan5:t'
+
+config interface 'iptv'
+	option proto 'static'
+	option device 'br-lan.23'
+	option ipaddr '192.168.196.1'
+	option netmask '255.255.255.0'
+	option defaultroute '0'
+	option delegate '0'
+
+
