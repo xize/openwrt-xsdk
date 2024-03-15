@@ -1,3 +1,4 @@
+
 config interface 'loopback'
 	option device 'lo'
 	option proto 'static'
@@ -34,10 +35,6 @@ config interface 'wan6'
 	option disabled '1'
 	option reqaddress 'none'
 	option reqprefix 'no'
-
-config device
-	option type 'bridge'
-	option name 'docker0'
 
 config bridge-vlan
 	option device 'br-lan'
@@ -128,6 +125,23 @@ config interface 'zigbee'
 	option defaultroute '0'
 	option delegate '0'
 
+config interface 'wgclient'
+	option proto 'wireguard'
+	option defaultroute '0'
+	option delegate '0'
+
+config interface 'wgserver'
+	option proto 'wireguard'
+	option listen_port '4443'
+	list addresses '10.6.7.1/24'
+	option defaultroute '0'
+
+config wireguard_wgserver
+	option description 'remoteaccesspeer'
+	option endpoint_port '4443'
+	option persistent_keepalive '25'
+	list allowed_ips '0.0.0.0/0'
+
 config bridge-vlan
 	option device 'br-lan'
 	option vlan '90'
@@ -213,5 +227,27 @@ config interface 'iptv'
 	option netmask '255.255.255.0'
 	option defaultroute '0'
 	option delegate '0'
+
+config interface 'wifivpn'
+	option proto 'wireguard'
+	option listen_port '51820'
+	list addresses '10.39.95.1/24'
+	option delegate '0'
+	option defaultroute '0'
+	option mtu '1420'
+
+config wireguard_wifivpn
+	option description 'peer1'
+	option endpoint_host '10.234.80.1'
+	option endpoint_port '51820'
+	option persistent_keepalive '25'
+	list allowed_ips '10.39.95.2/32'
+
+config wireguard_wifivpn
+	option description 'peer2'
+	option endpoint_host '10.234.80.1'
+	option endpoint_port '51820'
+	option persistent_keepalive '25'
+	list allowed_ips '10.39.95.3/32'
 
 
