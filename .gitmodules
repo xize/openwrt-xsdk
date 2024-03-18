@@ -1,3 +1,6 @@
 [submodule "package/luci-theme-argon"]
 	path = package/luci-theme-argon
 	url = https://github.com/jerrykuku/luci-theme-argon
+[submodule "package/feeds/luci/luci-app-argon-config"]
+	path = package/feeds/luci/luci-app-argon-config
+	url = https://github.com/jerrykuku/luci-app-argon-config
