@@ -1,10 +1,7 @@
-
 config defaults
 	option input 'REJECT'
 	option output 'ACCEPT'
 	option forward 'REJECT'
-	option flow_offloading '1'
-	option flow_offloading_hw '1'
 
 config zone
 	option name 'lan'
@@ -340,10 +337,6 @@ config forwarding
 	option src 'iptv'
 	option dest 'wan'
 
-config forwarding
-	option src 'wlan0'
-	option dest 'wgclient'
-
 config zone
 	option name 'wifivpn'
 	option input 'ACCEPT'
@@ -396,9 +389,25 @@ config rule
 	list dest_ip '10.234.53.25'
 	option target 'ACCEPT'
 
+config rule
+	option name 'Allow-chromecast-zigbee'
+	option src 'zigbee'
+	option dest 'wifivpn'
+	list dest_ip '224.0.0.0/4'
+	option target 'ACCEPT'
+	option dest_port '5353'
+
+config rule
+	option src 'wifivpn'
+	option dest 'zigbee'
+	option target 'ACCEPT'
+	list dest_ip '10.33.77.4'
+	option name 'Allow-chromecast-from-wifivpn'
+	option dest_port '8008-8009 5353 10001'
+
 config include 'pbr'
 	option fw4_compatible '1'
 	option type 'script'
-	option path '/usr/share/pbr/pbr.firewall.include'
+	option path '/usr/share/pbr/firewall.include'
 
 
