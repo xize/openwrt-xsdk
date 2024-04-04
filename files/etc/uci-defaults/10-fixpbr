@@ -1,0 +1,2 @@
+rm /etc/rc.d/S94pbr
+exit 0
