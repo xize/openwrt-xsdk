@@ -234,4 +234,26 @@ config interface 'vx0'
 	option delegate '0'
 	option vid '4066'
 
+config bridge-vlan
+	option device 'br-lan'
+	option vlan '178'
+
+config bridge-vlan
+	option device 'br-lan'
+	option vlan '179'
+
+config interface 'aqaranet'
+	option proto 'static'
+	option device 'br-lan.178'
+	option ipaddr '10.233.10.1'
+	option netmask '255.255.255.0'
+	option defaultroute '0'
+
+config interface 'hwnet'
+	option proto 'static'
+	option device 'br-lan.179'
+	option ipaddr '10.182.32.1'
+	option netmask '255.255.255.0'
+	option defaultroute '0'
+
 

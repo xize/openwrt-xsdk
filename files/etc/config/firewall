@@ -405,6 +405,29 @@ config rule
 	option name 'Allow-chromecast-from-wifivpn'
 	option dest_port '8008-8009 5353 10001'
 
+config zone
+	option name 'aqara'
+	option input 'ACCEPT'
+	option output 'ACCEPT'
+	option forward 'REJECT'
+	list network 'aqaranet'
+
+config zone
+	option name 'hwnet'
+	option input 'ACCEPT'
+	option output 'ACCEPT'
+	option forward 'REJECT'
+	list network 'hwnet'
+
+config forwarding
+	option src 'aqara'
+	option dest 'wan'
+
+config forwarding
+	option src 'hwnet'
+	option dest 'wan'
+
+
 config include 'pbr'
 	option fw4_compatible '1'
 	option type 'script'
