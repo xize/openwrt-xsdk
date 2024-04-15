@@ -237,6 +237,11 @@ config interface 'vx0'
 config bridge-vlan
 	option device 'br-lan'
 	option vlan '178'
+	list ports 'lan1:t'
+	list ports 'lan2:t'
+	list ports 'lan4:t'
+	list ports 'lan5:t'
+	list ports 'vx0:t'
 
 config bridge-vlan
 	option device 'br-lan'
