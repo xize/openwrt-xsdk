@@ -1,4 +1,4 @@
-From 9b6482b0e42da5b69e5abe4473c99d1d0f518e28 Mon Sep 17 00:00:00 2001
+From e5b4c0323eb5575a4531d3967d12fb3ba6d835ea Mon Sep 17 00:00:00 2001
 From: rany <ranygh@riseup.net>
 Date: Fri, 26 May 2023 19:41:12 +0300
 Subject: [PATCH] wifi: mt76: mt7915: do not use event format to get survey
@@ -20,19 +20,23 @@ Signed-off-by: rany <ranygh@riseup.net>
  mt7915/regs.h     | 13 +++++++++
  7 files changed, 49 insertions(+), 100 deletions(-)
 
+diff --git a/mt76_connac_mcu.h b/mt76_connac_mcu.h
+index 915eb3a1..3e92f3f3 100644
 --- a/mt76_connac_mcu.h
 +++ b/mt76_connac_mcu.h
-@@ -1216,7 +1216,6 @@ enum {
+@@ -1218,7 +1218,6 @@ enum {
  	MCU_EXT_CMD_EFUSE_FREE_BLOCK = 0x4f,
  	MCU_EXT_CMD_TX_POWER_FEATURE_CTRL = 0x58,
  	MCU_EXT_CMD_RXDCOC_CAL = 0x59,
 -	MCU_EXT_CMD_GET_MIB_INFO = 0x5a,
- #ifdef MTK_DEBUG
- 	MCU_EXT_CMD_RED_SHOW_STA = 0x69,
- 	MCU_EXT_CMD_RED_TARGET_DELAY = 0x6A,
+ 	MCU_EXT_CMD_TXDPD_CAL = 0x60,
+ 	MCU_EXT_CMD_CAL_CACHE = 0x67,
+ 	MCU_EXT_CMD_RED_ENABLE = 0x68,
+diff --git a/mt7915/init.c b/mt7915/init.c
+index eee18798..bffc94e3 100644
 --- a/mt7915/init.c
 +++ b/mt7915/init.c
-@@ -494,6 +494,7 @@ mt7915_mac_init_band(struct mt7915_dev *
+@@ -515,6 +515,7 @@ mt7915_mac_init_band(struct mt7915_dev *dev, u8 band)
  	mask = MT_WF_RMAC_MIB_OBSS_BACKOFF | MT_WF_RMAC_MIB_ED_OFFSET;
  	set = FIELD_PREP(MT_WF_RMAC_MIB_OBSS_BACKOFF, 0) |
  	      FIELD_PREP(MT_WF_RMAC_MIB_ED_OFFSET, 4);
@@ -40,9 +44,11 @@ Signed-off-by: rany <ranygh@riseup.net>
  	mt76_rmw(dev, MT_WF_RMAC_MIB_AIRTIME0(band), mask, set);
  
  	/* filter out non-resp frames and get instanstaeous signal reporting */
+diff --git a/mt7915/mac.c b/mt7915/mac.c
+index 8008ce3f..4cda0938 100644
 --- a/mt7915/mac.c
 +++ b/mt7915/mac.c
-@@ -1210,10 +1210,14 @@ void mt7915_mac_reset_counters(struct mt
+@@ -1146,10 +1146,14 @@ void mt7915_mac_reset_counters(struct mt7915_phy *phy)
  	memset(phy->mt76->aggr_stats, 0, sizeof(phy->mt76->aggr_stats));
  
  	/* reset airtime counters */
@@ -59,7 +65,7 @@ Signed-off-by: rany <ranygh@riseup.net>
  }
  
  void mt7915_mac_set_timing(struct mt7915_phy *phy)
-@@ -1275,23 +1279,49 @@ mt7915_phy_get_nf(struct mt7915_phy *phy
+@@ -1252,23 +1256,49 @@ mt7915_phy_get_nf(struct mt7915_phy *phy, int idx)
  	return sum / n;
  }
  
@@ -112,9 +118,11 @@ Signed-off-by: rany <ranygh@riseup.net>
  static bool
  mt7915_wait_reset_state(struct mt7915_dev *dev, u32 state)
  {
+diff --git a/mt7915/mcu.c b/mt7915/mcu.c
+index 29e9d660..8f0c3f36 100644
 --- a/mt7915/mcu.c
 +++ b/mt7915/mcu.c
-@@ -3347,78 +3347,6 @@ int mt7915_mcu_apply_tx_dpd(struct mt791
+@@ -3086,78 +3086,6 @@ int mt7915_mcu_apply_tx_dpd(struct mt7915_phy *phy)
  	return 0;
  }
  
@@ -193,9 +201,11 @@ Signed-off-by: rany <ranygh@riseup.net>
  int mt7915_mcu_get_temperature(struct mt7915_phy *phy)
  {
  	struct mt7915_dev *dev = phy->dev;
+diff --git a/mt7915/mcu.h b/mt7915/mcu.h
+index b41ac4aa..c8e5fd9d 100644
 --- a/mt7915/mcu.h
 +++ b/mt7915/mcu.h
-@@ -263,27 +263,6 @@ struct mt7915_mcu_phy_rx_info {
+@@ -163,27 +163,6 @@ struct mt7915_mcu_phy_rx_info {
  	u8 bw;
  };
  
@@ -223,19 +233,23 @@ Signed-off-by: rany <ranygh@riseup.net>
  struct mt7915_mcu_txpower_sku {
  	u8 format_id;
  	u8 limit_type;
+diff --git a/mt7915/mt7915.h b/mt7915/mt7915.h
+index a30d08eb..2e02a528 100644
 --- a/mt7915/mt7915.h
 +++ b/mt7915/mt7915.h
-@@ -670,7 +670,6 @@ int mt7915_mcu_set_muru_ctrl(struct mt79
- int mt7915_set_muru_cfg(struct mt7915_phy *phy, u8 mode, u8 val);
+@@ -495,7 +495,6 @@ int mt7915_mcu_set_radar_th(struct mt7915_dev *dev, int index,
+ int mt7915_mcu_set_muru_ctrl(struct mt7915_dev *dev, u32 cmd, u32 val);
  int mt7915_mcu_apply_group_cal(struct mt7915_dev *dev);
  int mt7915_mcu_apply_tx_dpd(struct mt7915_phy *phy);
 -int mt7915_mcu_get_chan_mib_info(struct mt7915_phy *phy, bool chan_switch);
  int mt7915_mcu_get_temperature(struct mt7915_phy *phy);
  int mt7915_mcu_set_thermal_throttling(struct mt7915_phy *phy, u8 state);
  int mt7915_mcu_set_thermal_protect(struct mt7915_phy *phy);
+diff --git a/mt7915/regs.h b/mt7915/regs.h
+index 89ac8e67..8a0a7ff4 100644
 --- a/mt7915/regs.h
 +++ b/mt7915/regs.h
-@@ -323,6 +323,9 @@ enum offs_rev {
+@@ -311,6 +311,9 @@ enum offs_rev {
  #define MT_MIB_SDR3_FCS_ERR_MASK	GENMASK(15, 0)
  #define MT_MIB_SDR3_FCS_ERR_MASK_MT7916	GENMASK(31, 16)
  
@@ -245,7 +259,7 @@ Signed-off-by: rany <ranygh@riseup.net>
  #define MT_MIB_SDR4(_band)		MT_WF_MIB(_band, __OFFS(MIB_SDR4))
  #define MT_MIB_SDR4_RX_FIFO_FULL_MASK	GENMASK(15, 0)
  
-@@ -424,6 +427,11 @@ enum offs_rev {
+@@ -412,6 +415,11 @@ enum offs_rev {
  #define MT_MIB_SDR33(_band)		MT_WF_MIB(_band, 0x088)
  #define MT_MIB_SDR33_TX_PKT_IBF_CNT	GENMASK(15, 0)
  
@@ -257,7 +271,7 @@ Signed-off-by: rany <ranygh@riseup.net>
  #define MT_MIB_SDRMUBF(_band)		MT_WF_MIB(_band, __OFFS(MIB_SDRMUBF))
  #define MT_MIB_MU_BF_TX_CNT		GENMASK(15, 0)
  
-@@ -575,6 +583,7 @@ enum offs_rev {
+@@ -556,6 +564,7 @@ enum offs_rev {
  #define MT_WF_RMAC_RSVD0(_band)	MT_WF_RMAC(_band, 0x02e0)
  #define MT_WF_RMAC_RSVD0_EIFS_CLR	BIT(21)
  
@@ -265,7 +279,7 @@ Signed-off-by: rany <ranygh@riseup.net>
  #define MT_WF_RMAC_MIB_AIRTIME0(_band)	MT_WF_RMAC(_band, 0x0380)
  #define MT_WF_RMAC_MIB_RXTIME_CLR	BIT(31)
  #define MT_WF_RMAC_MIB_OBSS_BACKOFF	GENMASK(15, 0)
-@@ -589,6 +598,10 @@ enum offs_rev {
+@@ -570,6 +579,10 @@ enum offs_rev {
  #define MT_WF_RMAC_MIB_AIRTIME4(_band)	MT_WF_RMAC(_band, 0x0390)
  #define MT_WF_RMAC_MIB_QOS23_BACKOFF	GENMASK(31, 0)
  
@@ -276,3 +290,6 @@ Signed-off-by: rany <ranygh@riseup.net>
  /* WFDMA0 */
  #define MT_WFDMA0_BASE			__REG(WFDMA0_ADDR)
  #define MT_WFDMA0(ofs)			(MT_WFDMA0_BASE + (ofs))
+-- 
+2.43.0
+
