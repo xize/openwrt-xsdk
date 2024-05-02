@@ -311,6 +311,7 @@ config rule
 	option dest '*'
 	option target 'ACCEPT'
 	option mark '0x010000'
+        list proto 'all'
 
 config zone
 	option name 'fakeisp'
