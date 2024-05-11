@@ -742,7 +742,7 @@ define Device/dlink_dir-8xx-r1
 	check-size | append-metadata
 endef
 
-define Device/dlink_dir-xx60-a1
+define Device/dlink_dir_nand_128m
   $(Device/nand)
   IMAGE_SIZE := 40960k
   DEVICE_VENDOR := D-Link
@@ -763,35 +763,45 @@ endef
 TARGET_DEVICES += dlink_dir-1935-a1
 
 define Device/dlink_dir-1960-a1
-  $(Device/dlink_dir-xx60-a1)
+  $(Device/dlink_dir_nand_128m)
   DEVICE_MODEL := DIR-1960
   DEVICE_VARIANT := A1
 endef
 TARGET_DEVICES += dlink_dir-1960-a1
 
+define Device/dlink_dir-2150-a1
+  $(Device/dlink_dir_nand_128m)
+  DEVICE_MODEL := DIR-2150
+  DEVICE_VARIANT := A1
+  DEVICE_PACKAGES += kmod-mt7603 -kmod-usb3 -kmod-usb-ledtrig-usbport
+  IMAGES += factory.bin
+  IMAGE/factory.bin := $$(IMAGE/recovery.bin) | dlink-sge-image $$(DEVICE_MODEL)
+endef
+TARGET_DEVICES += dlink_dir-2150-a1
+
 define Device/dlink_dir-2640-a1
-  $(Device/dlink_dir-xx60-a1)
+  $(Device/dlink_dir_nand_128m)
   DEVICE_MODEL := DIR-2640
   DEVICE_VARIANT := A1
 endef
 TARGET_DEVICES += dlink_dir-2640-a1
 
 define Device/dlink_dir-2660-a1
-  $(Device/dlink_dir-xx60-a1)
+  $(Device/dlink_dir_nand_128m)
   DEVICE_MODEL := DIR-2660
   DEVICE_VARIANT := A1
 endef
 TARGET_DEVICES += dlink_dir-2660-a1
 
 define Device/dlink_dir-3040-a1
-  $(Device/dlink_dir-xx60-a1)
+  $(Device/dlink_dir_nand_128m)
   DEVICE_MODEL := DIR-3040
   DEVICE_VARIANT := A1
 endef
 TARGET_DEVICES += dlink_dir-3040-a1
 
 define Device/dlink_dir-3060-a1
-  $(Device/dlink_dir-xx60-a1)
+  $(Device/dlink_dir_nand_128m)
   DEVICE_MODEL := DIR-3060
   DEVICE_VARIANT := A1
 endef
@@ -806,7 +816,7 @@ endef
 TARGET_DEVICES += dlink_dir-853-a1
 
 define Device/dlink_dir-853-a3
-  $(Device/dlink_dir-xx60-a1)
+  $(Device/dlink_dir_nand_128m)
   DEVICE_MODEL := DIR-853
   DEVICE_VARIANT := A3
   IMAGES += factory.bin
@@ -1523,6 +1533,15 @@ define Device/jcg_y2
   DEVICE_PACKAGES := kmod-mt7615-firmware kmod-usb3 -uboot-envtools
 endef
 TARGET_DEVICES += jcg_y2
+
+define Device/jdcloud_re-cp-02
+  $(Device/dsa-migration)
+  IMAGE_SIZE := 16000k
+  DEVICE_VENDOR := JD-Cloud
+  DEVICE_MODEL := RE-CP-02
+  DEVICE_PACKAGES := kmod-mt7915-firmware kmod-sdhci-mt7620
+endef
+TARGET_DEVICES += jdcloud_re-cp-02
 
 define Device/keenetic_kn-3010
   $(Device/dsa-migration)
