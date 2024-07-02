@@ -1,0 +1,34 @@
+#!/bin/sh
+
+while getopts k:i:v:r:h flag
+do
+    case "${flag}" in
+        k) key=${OPTARG};;
+        i) interface=${OPTARG};;
+        v) vid=${OPTARG};;
+        r) radio=${OPTARG};;
+        h)
+          echo "makepsk: command help"
+          echo "-k: wpa2 password"    
+          echo "-i: interface/name where the vlan gets tagged to"
+          echo "-v: the tagged vid"                              
+          echo "-r: the defined radio"
+          exit 1                      
+          ;;    
+    esac    
+done    
+    
+echo "interface: $interface"
+                            
+uci add wireless wifi-station
+uci set wireless.@wifi-station[-1].vid="$vid"
+uci set wireless.@wifi-station[-1].iface="$radio"
+uci set wireless.@wifi-station[-1].key="$key"    
+                                             
+uci add wireless wifi-vlan
+uci set wireless.@wifi-vlan[-1].vid="$vid"
+uci set wireless.@wifi-vlan[-1].name="$interface"
+uci set wireless.@wifi-vlan[-1].network="$interface"
+uci set wireless.@wifi-vlan[-1].iface="$radio"      
+                                              
+uci commit wireless
