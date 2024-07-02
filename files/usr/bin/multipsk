@@ -17,7 +17,13 @@ do
           ;;    
     esac    
 done    
-    
+
+if [ $OPTIND -eq 1 ]; 
+then
+	echo "No options were passed."
+        exit 1
+fi
+
 echo "interface: $interface"
                             
 uci add wireless wifi-station
