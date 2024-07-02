@@ -103,25 +103,20 @@ config dhcp 'tvboxnet'
 config host
 	option name 'GS1900-24E'
 	option ip '10.234.53.10'
-	list mac '50:E0:39:FB:E6:80'
 
 config host
 	option name 'Mochabin'
 	option ip '10.234.53.15'
-	list mac 'F0:AD:4E:28:9F:28'
 
 config host
 	option ip '10.234.53.25'
 	option name 'GS1900-8'
-	list mac '50:E0:39:F7:80:4E'
 
 config host
 	option ip '10.234.53.20'
 	option name 'GS1900-8HP'
-	list mac 'F4:4D:5C:77:32:40'
 
 config host
 	option ip '10.56.2.2'
 	option name 'PS5'
-	list mac '0C:70:43:0B:41:60'
 
