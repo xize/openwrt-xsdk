@@ -1,8 +1,6 @@
 
 config dnsmasq
-	option domainneeded '1'
-	option localise_queries '1'
-	option rebind_protection '0'
+	option rebind_protection '1'
 	option local '/lan/'
 	option domain 'lan'
 	option expandhosts '1'
@@ -11,10 +9,13 @@ config dnsmasq
 	option readethers '1'
 	option leasefile '/tmp/dhcp.leases'
 	option resolvfile '/tmp/resolv.conf.d/resolv.conf.auto'
-	option localservice '0'
+	option localservice '1'
 	option ednspacket_max '1232'
 	option sequential_ip '1'
-	option boguspriv '0'
+	option dnssec '1'
+	option domainneeded '1'
+	option rebind_localhost '1'
+	option localise_queries '1'
 
 config dhcp 'lan'
 	option interface 'lan'
@@ -57,14 +58,8 @@ config dhcp 'wlan1'
 	option limit '150'
 	option leasetime '12h'
 
-config dhcp 'zigbee'
-	option interface 'zigbee'
-	option start '2'
-	option limit '150'
-	option leasetime '12h'
-
-config dhcp 'ayaneo'
-	option interface 'ayaneo'
+config dhcp 'iot'
+	option interface 'iot'
 	option start '2'
 	option limit '150'
 	option leasetime '12h'
@@ -75,23 +70,58 @@ config dhcp 'tvnet'
 	option limit '150'
 	option leasetime '12h'
 
-config host
-	option name 'iptv'
-	option ip '192.168.196.2'
-	list mac '5C:0F:FB:02:AC:1A'
-
-config dhcp 'fakeisp'
-	option interface 'fakeisp'
-	option ignore '1'
+config dhcp 'ps5'
+	option interface 'ps5'
 	option start '2'
 	option limit '150'
 	option leasetime '12h'
-	list dhcp_option '6,10.10.10.1'
 
-config dhcp 'iptv'
-	option interface 'iptv'
+config dhcp 'ayaneo'
+	option interface 'ayaneo'
 	option start '2'
-	option limit '10'
+	option limit '150'
 	option leasetime '12h'
 
+config dhcp 'aqaranet'
+	option interface 'aqaranet'
+	option start '2'
+	option limit '150'
+	option leasetime '12h'
+
+config dhcp 'hwnet'
+	option interface 'hwnet'
+	option start '2'
+	option limit '150'
+	option leasetime '12h'
+
+config dhcp 'tvboxnet'
+	option interface 'tvboxnet'
+	option start '2'
+	option limit '150'
+	option leasetime '12h'
+
+config host
+	option name 'GS1900-24E'
+	option ip '10.234.53.10'
+	list mac '50:E0:39:FB:E6:80'
+
+config host
+	option name 'Mochabin'
+	option ip '10.234.53.15'
+	list mac 'F0:AD:4E:28:9F:28'
+
+config host
+	option ip '10.234.53.25'
+	option name 'GS1900-8'
+	list mac '50:E0:39:F7:80:4E'
+
+config host
+	option ip '10.234.53.20'
+	option name 'GS1900-8HP'
+	list mac 'F4:4D:5C:77:32:40'
+
+config host
+	option ip '10.56.2.2'
+	option name 'PS5'
+	list mac '0C:70:43:0B:41:60'
 

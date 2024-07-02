@@ -1,7 +1,10 @@
+
 config defaults
-	option input 'REJECT'
+	option input 'DROP'
 	option output 'ACCEPT'
 	option forward 'REJECT'
+	option flow_offloading '1'
+	option flow_offloading_hw '1'
 
 config zone
 	option name 'lan'
@@ -18,7 +21,6 @@ config zone
 	option masq '1'
 	option mtu_fix '1'
 	list network 'wan'
-	list network 'wan6'
 
 config forwarding
 	option src 'lan'
@@ -154,123 +156,11 @@ config zone
 	list network 'wlan1'
 
 config zone
-	option name 'zigbee'
-	option input 'ACCEPT'
-	option output 'ACCEPT'
-	option forward 'ACCEPT'
-	list network 'zigbee'
-
-config forwarding
-	option src 'zigbee'
-	option dest 'wan'
-
-config forwarding
-	option src 'aria'
-	option dest 'wan'
-
-config zone
-	option name 'wgclient'
-	option input 'DROP'
-	option output 'ACCEPT'
-	option forward 'REJECT'
-	option masq '1'
-	option mtu_fix '1'
-	list network 'wgclient'
-
-config zone
-	option name 'wgserver'
-	option input 'ACCEPT'
-	option output 'ACCEPT'
-	option forward 'ACCEPT'
-	option masq '1'
-	option mtu_fix '1'
-	list network 'wgserver'
-
-config forwarding
-	option src 'wgserver'
-	option dest 'wan'
-
-config forwarding
-	option src 'wgserver'
-	option dest 'wgclient'
-
-config forwarding
-	option src 'lan'
-	option dest 'wgserver'
-
-config rule
-	option name 'allow-printer'
-	option src 'pcnet'
-	option dest 'zigbee'
-	option target 'ACCEPT'
-	list dest_ip '10.33.77.20'
-
-config forwarding
-	option src 'pcnet'
-	option dest 'wgclient'
-
-config rule
-	option name 'Allow-management'
-	list proto 'all'
-	option src 'pcnet'
-	option dest 'lan'
-	list dest_ip '10.234.53.3'
-	list dest_ip '10.234.53.10'
-	list dest_ip '10.234.53.15'
-	list dest_ip '10.234.53.20'
-	list dest_ip '10.234.53.25'
-	option target 'ACCEPT'
-
-config rule
-	option name 'Allow-printer-wlan0'
-	option src 'wlan0'
-	option dest 'zigbee'
-	list dest_ip '10.33.77.20'
-	option target 'ACCEPT'
-
-config redirect
-	option target 'DNAT'
-	option name 'Forward-wgserver'
-	option src 'wan'
-	option src_dport '4443'
-	option dest 'wgserver'
-	list proto 'udp'
-	option dest_ip '10.6.7.1'
-
-config redirect
-	option target 'DNAT'
-	option src 'wgserver'
-	option src_dport '4789'
-	option name 'allow-vxlan-port'
-
-config redirect
-	option dest 'wifivpn'
-	option target 'DNAT'
-	option src 'wlan0'
-	option src_dport '51820'
-	option dest_ip '10.39.95.1'
-	option name 'Allow-wifivpn'
-	option dest_port '51820'
-	option enabled '0'
-
-config redirect
-	option target 'DNAT'
-	option name 'force-dns-pcnet'
-	option src 'pcnet'
-	option src_dport '53'
-
-config redirect
-	option target 'DNAT'
-	option name 'force-dns-wlan0'
-	option src 'wlan0'
-	option src_dport '53'
-
-config zone
-	option name 'ayaneo'
+	option name 'iot'
 	option input 'ACCEPT'
 	option output 'ACCEPT'
 	option forward 'REJECT'
-	list network 'ayaneo'
+	list network 'iot'
 
 config zone
 	option name 'tvnet'
@@ -279,132 +169,19 @@ config zone
 	option forward 'REJECT'
 	list network 'tvnet'
 
-config forwarding
-	option src 'tvnet'
-	option dest 'wan'
-
-config forwarding
-	option src 'ayaneo'
-	option dest 'wgclient'
-
-config redirect
-	option target 'DNAT'
-	option name 'force-dns-zigbee'
-	option src 'zigbee'
-	option src_dport '53'
-
-config redirect
-	option target 'DNAT'
-	option name 'force-dns-wlan1'
-	option src 'wlan1'
-	option src_dport '53'
-
-config redirect
-	option target 'DNAT'
-	option name 'force-dns-tvnet'
-	option src 'tvnet'
-	option src_dport '53'
-
-config rule
-	option name 'Allow-pbr-wan'
-	option src '*'
-	option dest '*'
-	option target 'ACCEPT'
-	option mark '0x010000'
-        list proto 'all'
-
 config zone
-	option name 'fakeisp'
+	option name 'ps5'
 	option input 'ACCEPT'
 	option output 'ACCEPT'
 	option forward 'ACCEPT'
-	option masq '1'
-	option mtu_fix '1'
-	list device 'ppp+'
-	list network 'fakeisp'
-
-config forwarding
-	option src 'fakeisp'
-	option dest 'wgclient'
+	list network 'ps5'
 
 config zone
-	option name 'iptv'
+	option name 'aya'
 	option input 'ACCEPT'
 	option output 'ACCEPT'
 	option forward 'REJECT'
-	list network 'iptv'
-
-config forwarding
-	option src 'iptv'
-	option dest 'wan'
-
-config zone
-	option name 'wifivpn'
-	option input 'ACCEPT'
-	option output 'ACCEPT'
-	option forward 'REJECT'
-	list network 'wifivpn'
-
-config forwarding
-	option src 'wlan0'
-	option dest 'wifivpn'
-
-config forwarding
-	option src 'wifivpn'
-	option dest 'wgclient'
-
-config forwarding
-	option src 'wlan1'
-	option dest 'wifivpn'
-
-config rule
-	option name 'block-ui'
-	option src 'wlan0'
-	option dest_port '443 80'
-	option target 'DROP'
-
-config rule
-	option name 'block-ui'
-	option src 'wlan1'
-	option dest_port '80 443'
-	option target 'DROP'
-
-config rule
-	option name 'block-ui'
-	option src 'zigbee'
-	option dest_port '443 80'
-	option target 'DROP'
-
-config rule
-	option name 'block-ui'
-	option src 'tvnet'
-	option dest_port '443 80'
-	option target 'DROP'
-
-config rule
-	option src 'wifivpn'
-	option dest 'lan'
-	list dest_ip '10.234.53.3'
-	list dest_ip '10.234.53.10'
-	list dest_ip '10.234.53.15'
-	list dest_ip '10.234.53.25'
-	option target 'ACCEPT'
-
-config rule
-	option name 'Allow-chromecast-zigbee'
-	option src 'zigbee'
-	option dest 'wifivpn'
-	list dest_ip '224.0.0.0/4'
-	option target 'ACCEPT'
-	option dest_port '5353'
-
-config rule
-	option src 'wifivpn'
-	option dest 'zigbee'
-	option target 'ACCEPT'
-	list dest_ip '10.33.77.4'
-	option name 'Allow-chromecast-from-wifivpn'
-	option dest_port '8008-8009 5353 10001'
+	list network 'ayaneo'
 
 config zone
 	option name 'aqara'
@@ -420,6 +197,39 @@ config zone
 	option forward 'REJECT'
 	list network 'hwnet'
 
+config zone
+	option name 'wgclient'
+	option input 'DROP'
+	option output 'ACCEPT'
+	option forward 'REJECT'
+	option masq '1'
+	option mtu_fix '1'
+	list network 'wgclient'
+
+config forwarding
+	option src 'aria'
+	option dest 'wgclient'
+
+config forwarding
+	option src 'pcnet'
+	option dest 'wgclient'
+
+config forwarding
+	option src 'iot'
+	option dest 'wan'
+
+config forwarding
+	option src 'tvnet'
+	option dest 'wan'
+
+config forwarding
+	option src 'ps5'
+	option dest 'wgclient'
+
+config forwarding
+	option src 'aya'
+	option dest 'wgclient'
+
 config forwarding
 	option src 'aqara'
 	option dest 'wan'
@@ -428,10 +238,134 @@ config forwarding
 	option src 'hwnet'
 	option dest 'wan'
 
+config zone
+	option name 'tvboxnet'
+	option input 'ACCEPT'
+	option output 'ACCEPT'
+	option forward 'REJECT'
+	list network 'tvboxnet'
+
+config forwarding
+	option src 'tvboxnet'
+	option dest 'wan'
+
+config rule
+	option src 'wifivpn'
+	option dest 'lan'
+	option target 'ACCEPT'
+	option name 'management'
+	list proto 'all'
+	list dest_ip '10.234.53.3'
+	list dest_ip '10.234.53.10'
+	list dest_ip '10.234.53.20'
+	list dest_ip '10.234.53.25'
+	list dest_ip '10.234.53.15'
+
+config rule
+	option name 'allow-vpn-bypass'
+	option target 'ACCEPT'
+	option mark '0x10000/0xff0000'
+	option src '*'
+	option dest 'wan'
+
+config zone
+	option name 'wgserver'
+	option input 'ACCEPT'
+	option output 'ACCEPT'
+	option forward 'REJECT'
+	list network 'vx0'
+	list network 'wgserver'
+	option masq '1'
+	option mtu_fix '1'
+
+config forwarding
+	option src 'wgserver'
+	option dest 'wgclient'
+
+config rule
+	option name 'allow-maintenance'
+	option src 'pcnet'
+	list dest_ip '10.234.53.10'
+	list dest_ip '10.234.53.3'
+	list dest_ip '10.234.53.15'
+	list dest_ip '10.234.53.20'
+	list dest_ip '10.234.53.25'
+	option target 'ACCEPT'
+	list proto 'all'
+
+config rule
+	option name 'wgserver-allow-vxlan'
+	option src 'wgserver'
+	option dest_port '4789'
+	option target 'ACCEPT'
+
+config redirect
+	option target 'DNAT'
+	list proto 'udp'
+	option src 'wan'
+	option src_dport '4443'
+	option dest 'wgserver'
+	option dest_ip '10.6.7.1'
+	option name 'forward-wgserver'
+	option reflection '0'
+	option dest_port '4443'
+
+config forwarding
+	option src 'wgserver'
+	option dest 'wan'
+
+config redirect
+	option dest 'wgserver'
+	option target 'DNAT'
+	option src 'pcnet'
+	option src_dport '4443'
+	option dest_port '4443'
+	option dest_ip '10.6.7.1'
+	list proto 'udp'
+
+config rule
+	option src 'aya'
+	option dest 'ps5'
+	option dest_port '987 9295-9305 8572'
+	option target 'ACCEPT'
+	option name 'allow-psn-remote-play'
+	list dest_ip '10.56.2.2'
+	list proto 'tcp'
+	list proto 'udp'
+
+config rule
+	option name 'allow-psn-remote-play'
+	option src 'pcnet'
+	option dest 'ps5'
+	list dest_ip '10.56.2.2'
+	option target 'ACCEPT'
+	option dest_port '987 9295-9305 8572'
+	list proto 'tcp'
+	list proto 'udp'
+
+config zone
+	option name 'wifivpn'
+	option input 'ACCEPT'
+	option output 'ACCEPT'
+	option forward 'REJECT'
+	list network 'wifivpn'
+
+config forwarding
+	option src 'wifivpn'
+	option dest 'wgclient'
+
+config rule
+	option src 'wifivpn'
+	option dest 'ps5'
+	option target 'ACCEPT'
+	list dest_ip '10.56.2.2'
+	option dest_port '987 9295-9305 8572'
+	option name 'allow-psn-remote-play'
+	list proto 'tcp'
+	list proto 'udp'
 
 config include 'pbr'
 	option fw4_compatible '1'
 	option type 'script'
 	option path '/usr/share/pbr/firewall.include'
-
 

@@ -1,29 +1,33 @@
-fi-device 'radio0'
+config wifi-device 'radio0'
 	option type 'mac80211'
 	option path 'platform/soc/18000000.wifi'
 	option channel '8'
 	option band '2g'
-	option htmode 'HE40'
+	option htmode 'HE20'
 	option cell_density '0'
+	option txpower '20'
+	option country 'NL'
 
 config wifi-iface 'default_radio0'
 	option device 'radio0'
-        option disabled '1'
 	option network 'wlan0'
 	option mode 'ap'
-	option ssid 'GL-MT6000'
+	option ssid 'GL-MT6000-7fa'
 	option encryption 'psk2+ccmp'
-	option key ''
-	option disassoc_low_ack '0'
+	option disabled '1'
 	option ieee80211w '1'
 	option wpa_disable_eapol_key_retries '1'
+	option macaddr 'random'
 
 config wifi-device 'radio1'
 	option type 'mac80211'
 	option path 'platform/soc/18000000.wifi+1'
-        option htmode 'HE160'
-	option channel 'auto'
+	option channel '36'
 	option band '5g'
+	option htmode 'HE160'
+	option cell_density '0'
+	option country 'NL'
+	option txpower '23'
 
 config wifi-iface 'default_radio1'
 	option device 'radio1'
@@ -31,9 +35,9 @@ config wifi-iface 'default_radio1'
 	option mode 'ap'
 	option ssid 'GL-MT6000-7fa-5G'
 	option encryption 'psk2+ccmp'
-	option key ''
-        option disabled '1'
+	option disabled '1'
 	option ieee80211w '1'
+	option macaddr 'random'
 
 config wifi-vlan
 	option iface 'default_radio0'
@@ -44,7 +48,7 @@ config wifi-vlan
 config wifi-station
 	option iface 'default_radio0'
 	option vid '178'
-	option key 'aqnet178'
+	option key 'key1'
 
 config wifi-vlan
 	option iface 'default_radio0'
@@ -55,18 +59,18 @@ config wifi-vlan
 config wifi-station
 	option iface 'default_radio0'
 	option vid '179'
-	option key 'hwnet179'
+	option key 'key2'
 
 config wifi-vlan
 	option iface 'default_radio0'
 	option vid '52'
-	option name 'zigbee'
-	option network 'zigbee'
+	option name 'iot'
+	option network 'iot'
 
 config wifi-station
 	option iface 'default_radio0'
 	option vid '52'
-	option key 'zigbee52'
+	option key 'key3'
 
 config wifi-vlan
 	option iface 'default_radio1'
@@ -77,6 +81,4 @@ config wifi-vlan
 config wifi-station
 	option iface 'default_radio1'
 	option vid '90'
-	option key 'aya90'
-
-
+	option key 'key4'
