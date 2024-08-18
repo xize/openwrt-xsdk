@@ -81,6 +81,14 @@ define Device/friendlyarm_nanopi-r5s
 endef
 TARGET_DEVICES += friendlyarm_nanopi-r5s
 
+define Device/friendlyarm_nanopi-r6s
+  DEVICE_VENDOR := FriendlyARM
+  DEVICE_MODEL := NanoPi R6S
+  SOC := rk3588s
+  DEVICE_PACKAGES := kmod-r8169
+endef
+TARGET_DEVICES += friendlyarm_nanopi-r6s
+
 define Device/pine64_rock64
   DEVICE_VENDOR := Pine64
   DEVICE_MODEL := Rock64
@@ -119,6 +127,7 @@ define Device/radxa_rock-3a
   DEVICE_VENDOR := Radxa
   DEVICE_MODEL := ROCK 3A
   SOC := rk3568
+  SUPPORTED_DEVICES := radxa,rock3a
   DEVICE_PACKAGES := kmod-usb-net-cdc-ncm kmod-usb-net-rndis
 endef
 TARGET_DEVICES += radxa_rock-3a
@@ -152,6 +161,7 @@ define Device/radxa_rock-pi-s
   DEVICE_VENDOR := Radxa
   DEVICE_MODEL := ROCK Pi S
   SOC := rk3308
+  SUPPORTED_DEVICES := radxa,rockpis
   BOOT_SCRIPT := rock-pi-s
   DEVICE_PACKAGES := kmod-rtw88-8723ds kmod-usb-net-cdc-ncm kmod-usb-net-rndis wpad-basic-mbedtls
 endef
