@@ -6,12 +6,13 @@ PKG_RELEASE=1
 PKG_LICENSE:=GPLv2
 PKG_LICENSE_FILES:=
 
-PKG_SOURCE_URL:=file:///home/xize/openwrt-flint2-testing/package/kernel/mt76/mt76
-#PKG_SOURCE_URL:=https://github.com/openwrt/mt76
+#PKG_SOURCE_URL:=file:///home/xize/openwrt-flint2-testing/package/kernel/mt76/mt76
+PKG_SOURCE_URL:=https://github.com/openwrt/mt76
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_DATE:=2024-08-20
-PKG_SOURCE_VERSION:=9e05d9b7ed3d11635a74a46f69c8a18ea76a21c1
-PKG_MIRROR_HASH:=skip
+
+PKG_SOURCE_DATE:=2024-08-21
+PKG_SOURCE_VERSION:=a5e630ef458ce7b91bf522247ef3320ed5845e2a
+PKG_MIRROR_HASH:=a16f647206d68d67f9b2b134935f27ed66b7302a4ca8243842987dcfafbe8317
 
 PKG_MAINTAINER:=Felix Fietkau <nbd@nbd.name>
 PKG_USE_NINJA:=0
