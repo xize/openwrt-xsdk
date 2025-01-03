@@ -1,0 +1,18 @@
+#!/bin/sh
+
+router_model=$(ubus call system board | jsonfilter -e "@['board_name']")
+
+# add basic dsa cconfiguration
+
+if [ "$(uci get network.@device[0].vlan_filtering)" !=  '0' ]; then
+
+  uci add_list network.@device[0].list_ports='phy0-ap0' 'phy1-ap0'
+  # ensure we enable this for the correct router in our list, else do not enable filtering because we also cannot create vlans then for not being aware which ports we talk about.
+  if [ "$router_model" = "glinet,gl-mt6000" -o "$router_model" = "zyxel,ex5601-t0-ubootmod" ]; then
+	uci del network.@device[0].vlan_filtering # ensure this is deleted, when deleted filtering is enabled to 1.
+  fi
+  uci commit network
+
+fi
+
+exit 0

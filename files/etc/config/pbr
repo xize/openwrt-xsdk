@@ -1,0 +1,64 @@
+config pbr 'config'
+        option enabled '0'
+        option verbosity '2'
+        option strict_enforcement '1'
+        option resolver_set 'dnsmasq.nftset'
+        list resolver_instance '*'
+        option ipv6_enabled '0'
+        list ignored_interface 'vpnserver'
+        list ignored_interface 'vx0'
+        list ignored_interface 'wgserver'
+        option nft_file_support '1'
+        option rule_create_option 'add'
+        option boot_timeout '30'
+        option procd_wan_interface 'pppoe-wan'
+        option procd_boot_delay '30'
+        option procd_reload_delay '20'
+        option webui_show_ignore_target '1'
+        option nft_set_auto_merge '1'
+        option nft_set_counter '1'
+        option nft_set_flags_interval '1'
+        option nft_set_flags_timeout '0'
+        option nft_set_policy 'performance'
+        list webui_supported_protocol 'all'
+        list webui_supported_protocol 'tcp'
+        list webui_supported_protocol 'udp'
+        list webui_supported_protocol 'tcp udp'
+        list webui_supported_protocol 'icmp'
+        list supported_interface 'wgclient'
+        list supported_interface 'wifivpn'
+
+config policy
+        option name 'ignore-all-local'
+        option dest_addr '10.0.0.0/8 172.16.0.0/12 192.168.0.0/16'
+        option interface 'ignore'
+
+config policy
+        option name 'bypass domain'
+        option src_addr '10.6.7.0/24 10.234.80.0/24 10.87.32.0/24 10.34.79.0/24 10.39.95.0/24 10.56.2.0/24'
+        option interface 'wan'
+        option dest_addr 'env.vechain.org deploy.static.akamaitechnologies.com lancache.steamcontent.com spotifycdn.com scdn.co sony.akadns.net prod.dl.playstation.net.edgesuite.net sonycoment.loris-e.llnwd.net prod.dl.playstation.net steamcontent.com jumbo.com gls-info.nl outlook.com live.com postnl.nl vlscppe.microsoft.com git.openwrt.org underarmour.nl live.com microsoft.com outlook.com rewasd.com spotify.com worldpay.com whatismyip.com aqara.com reddit.com grc.com'
+
+config policy
+        option name 'route-vpn'
+        option src_addr '10.234.80.0/24 10.39.95.0/24 10.6.7.0/24 10.34.79.0/24 192.168.99.0/24 10.87.32.0/24'
+        option interface 'wgclient'
+
+config policy
+        option name 'route-ps5'
+        option src_addr '10.56.2.0/24'
+        option interface 'wg_pia'
+
+config policy
+        option name 'fix-rockstargames'
+        option dest_addr 'rockstargames.com ipleak.net'
+        option interface 'tor'
+        option chain 'forward'
+
+config include
+        option path '/usr/share/pbr/pbr.user.aws'
+        option enabled '0'
+
+config include
+        option path '/usr/share/pbr/pbr.user.netflix'
+        option enabled '0'

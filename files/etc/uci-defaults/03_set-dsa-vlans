@@ -1,0 +1,138 @@
+#!/bin/sh
+
+# set all vlans and networks.
+
+default_lan=$(uci get network.lan.device)
+router_model=$(ubus call system board | jsonfilter -e "@['board_name']")
+
+if [ "$default_lan" != "br-lan.169" -a "$router_model" = "glinet,gl-mt6000" -o "$router_model" = "zyxel,ex5601-t0-ubootmod" ];then # todo: check if script works with Zyxel-T56 (zyxel,ex5601-t0-ubootmod)
+
+    # create vlan bridge-vlan for lan.
+    uci add network bridge-vlan
+    uci set network.@bridge-vlan[-1].device='br-lan'
+	if [ "$router_model" = "glinet,gl-mt6000" ]; then
+		uci add_list network.@bridge-vlan[-1].ports='lan1:u*' 'lan2:u*' 'lan3:u*' 'lan4:u*' 'lan5:u*'
+    elif [ "$router_model" = "zyxel,ex5601-t0-ubootmod" ]; then
+		uci add_list network.@bridge-vlan[-1].ports='lan1:u*' 'lan2:u*' 'lan3:u*' 'lan4:u*'
+	fi
+	uci set network.@bridge-vlan[-1].vlan='169'
+	
+	# assign vlan to interface lan.
+	uci set network.lan.device='br-lan.169'
+	
+	# create vlan for other networks.
+	
+	# vlan for tvboxnet
+	uci add network bridge-vlan
+    uci set network.@bridge-vlan[-1].device='br-lan'
+	if [ "$router_model" = "glinet,gl-mt6000" ]; then
+		uci add_list network.@bridge-vlan[-1].ports='lan1:t' 'lan2:t' 'lan3:t' 'lan4:t' 'lan5:t'
+    elif [ "$router_model" = "zyxel,ex5601-t0-ubootmod" ]; then
+		uci add_list network.@bridge-vlan[-1].ports='lan1:t' 'lan2:t' 'lan3:t' 'lan4:t'
+	fi
+    uci set network.@bridge-vlan[-1].vlan='23'
+	
+    # vlan for pcnet
+	uci add network bridge-vlan
+    uci set network.@bridge-vlan[-1].device='br-lan'
+    if [ "$router_model" = "glinet,gl-mt6000" ]; then
+		uci add_list network.@bridge-vlan[-1].ports='lan1:t' 'lan2:t' 'lan3:t' 'lan4:t' 'lan5:t'
+    elif [ "$router_model" = "zyxel,ex5601-t0-ubootmod" ]; then
+		uci add_list network.@bridge-vlan[-1].ports='lan1:t' 'lan2:t' 'lan3:t' 'lan4:t'
+	fi
+    uci set network.@bridge-vlan[-1].vlan='49'
+	
+    # vlan for wlan0
+	uci add network bridge-vlan
+    uci set network.@bridge-vlan[-1].device='br-lan'
+    if [ "$router_model" = "glinet,gl-mt6000" ]; then
+		uci add_list network.@bridge-vlan[-1].ports='lan1:t' 'lan2:t' 'lan3:t' 'lan4:t' 'lan5:t'
+    elif [ "$router_model" = "zyxel,ex5601-t0-ubootmod" ]; then
+		uci add_list network.@bridge-vlan[-1].ports='lan1:t' 'lan2:t' 'lan3:t' 'lan4:t'
+	fi
+    uci set network.@bridge-vlan[-1].vlan='50'
+	
+    # vlan for wlan1
+	uci add network bridge-vlan
+    uci set network.@bridge-vlan[-1].device='br-lan'
+    if [ "$router_model" = "glinet,gl-mt6000" ]; then
+		uci add_list network.@bridge-vlan[-1].ports='lan1:t' 'lan2:t' 'lan3:t' 'lan4:t' 'lan5:t'
+    elif [ "$router_model" = "zyxel,ex5601-t0-ubootmod" ]; then
+		uci add_list network.@bridge-vlan[-1].ports='lan1:t' 'lan2:t' 'lan3:t' 'lan4:t'
+	fi
+    uci set network.@bridge-vlan[-1].vlan='51'
+
+    # vlan for iot
+	uci add network bridge-vlan
+    uci set network.@bridge-vlan[-1].device='br-lan'
+    if [ "$router_model" = "glinet,gl-mt6000" ]; then
+		uci add_list network.@bridge-vlan[-1].ports='lan1:t' 'lan2:t' 'lan3:t' 'lan4:t' 'lan5:t'
+    elif [ "$router_model" = "zyxel,ex5601-t0-ubootmod" ]; then
+		uci add_list network.@bridge-vlan[-1].ports='lan1:t' 'lan2:t' 'lan3:t' 'lan4:t'
+	fi
+    uci set network.@bridge-vlan[-1].vlan='52'
+	
+    # vlan for tvnet
+	uci add network bridge-vlan
+    uci set network.@bridge-vlan[-1].device='br-lan'
+    if [ "$router_model" = "glinet,gl-mt6000" ]; then
+		uci add_list network.@bridge-vlan[-1].ports='lan1:t' 'lan2:t' 'lan3:t' 'lan4:t' 'lan5:t'
+    elif [ "$router_model" = "zyxel,ex5601-t0-ubootmod" ]; then
+		uci add_list network.@bridge-vlan[-1].ports='lan1:t' 'lan2:t' 'lan3:t' 'lan4:t'
+	fi
+    uci set network.@bridge-vlan[-1].vlan='53'
+	
+    # vlan for ps5net
+	uci add network bridge-vlan
+    uci set network.@bridge-vlan[-1].device='br-lan'
+    if [ "$router_model" = "glinet,gl-mt6000" ]; then
+		uci add_list network.@bridge-vlan[-1].ports='lan1:t' 'lan2:t' 'lan3:t' 'lan4:t' 'lan5:t'
+    elif [ "$router_model" = "zyxel,ex5601-t0-ubootmod" ]; then
+		uci add_list network.@bridge-vlan[-1].ports='lan1:t' 'lan2:t' 'lan3:t' 'lan4:t'
+	fi
+    uci set network.@bridge-vlan[-1].vlan='89'
+
+    # vlan for ayaneo/nintendo switches
+	uci add network bridge-vlan
+    uci set network.@bridge-vlan[-1].device='br-lan'
+    if [ "$router_model" = "glinet,gl-mt6000" ]; then
+		uci add_list network.@bridge-vlan[-1].ports='lan1:t' 'lan2:t' 'lan3:t' 'lan4:t' 'lan5:t'
+    elif [ "$router_model" = "zyxel,ex5601-t0-ubootmod" ]; then
+		uci add_list network.@bridge-vlan[-1].ports='lan1:t' 'lan2:t' 'lan3:t' 'lan4:t'
+	fi
+    uci set network.@bridge-vlan[-1].vlan='90'
+	
+    # vlan for aqaranet
+	uci add network bridge-vlan
+    uci set network.@bridge-vlan[-1].device='br-lan'
+    if [ "$router_model" = "glinet,gl-mt6000" ]; then
+		uci add_list network.@bridge-vlan[-1].ports='lan1:t' 'lan2:t' 'lan3:t' 'lan4:t' 'lan5:t'
+    elif [ "$router_model" = "zyxel,ex5601-t0-ubootmod" ]; then
+		uci add_list network.@bridge-vlan[-1].ports='lan1:t' 'lan2:t' 'lan3:t' 'lan4:t'
+	fi
+    uci set network.@bridge-vlan[-1].vlan='178'
+	
+    # vlan for homewizard net
+	uci add network bridge-vlan
+    uci set network.@bridge-vlan[-1].device='br-lan'
+    if [ "$router_model" = "glinet,gl-mt6000" ]; then
+		uci add_list network.@bridge-vlan[-1].ports='lan1:t' 'lan2:t' 'lan3:t' 'lan4:t' 'lan5:t'
+    elif [ "$router_model" = "zyxel,ex5601-t0-ubootmod" ]; then
+		uci add_list network.@bridge-vlan[-1].ports='lan1:t' 'lan2:t' 'lan3:t' 'lan4:t'
+	fi
+    uci set network.@bridge-vlan[-1].vlan='179'
+	
+    # vlan for kvmnet
+	uci add network bridge-vlan
+    uci set network.@bridge-vlan[-1].device='br-lan'
+    if [ "$router_model" = "glinet,gl-mt6000" ]; then
+		uci add_list network.@bridge-vlan[-1].ports='lan1:t' 'lan2:t' 'lan3:t' 'lan4:t' 'lan5:t'
+    elif [ "$router_model" = "zyxel,ex5601-t0-ubootmod" ]; then
+		uci add_list network.@bridge-vlan[-1].ports='lan1:t' 'lan2:t' 'lan3:t' 'lan4:t'
+	fi
+    uci set network.@bridge-vlan[-1].vlan='180'
+
+    uci commit network
+fi
+
+exit 0

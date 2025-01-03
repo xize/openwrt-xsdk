@@ -1,0 +1,347 @@
+#!/bin/sh
+
+default_lan=$(uci get network.lan.device)
+router_model=$(ubus call system board | jsonfilter -e "@['board_name']")
+
+if [ "$default_lan" != "br-lan.169" -a "$router_model" = "glinet,gl-mt6000" -o "$router_model" = "zyxel,ex5601-t0-ubootmod" ];then
+
+    # generate vpn place holder firewall zones
+	# while we do not generate wireguard interfaces lets just create them.
+	uci add firewall zone
+	uci set firewall.@zone[-1].name='wgclient'
+	uci set firewall.@zone[-1].input="DROP"
+	uci set firewall.@zone[-1].output="ACCEPT"
+	uci set firewall.@zone[-1].forward="REJECT"
+
+	uci add firewall zone
+	uci set firewall.@zone[-1].name='wgserver'
+	uci set firewall.@zone[-1].input="DROP"
+	uci set firewall.@zone[-1].output="ACCEPT"
+	uci set firewall.@zone[-1].forward="REJECT"
+	
+	uci add firewall forwarding
+	uci set firewall.@forwarding[-1].src='wgserver'
+	uci set firewall.@forwarding[-1].dest='wgclient'
+	
+	uci add firewall zone
+	uci set firewall.@zone[-1].name='wifivpn'
+	uci set firewall.@zone[-1].input="ACCEPT"
+	uci set firewall.@zone[-1].output="ACCEPT"
+	uci set firewall.@zone[-1].forward="REJECT"
+	
+	uci add firewall forwarding
+	uci set firewall.@forwarding[-1].src='wifivpn'
+	uci set firewall.@forwarding[-1].dest='wgclient'
+
+    # generate all network interfaces assuming they are not generated.
+	
+	# ensure lan has also set its default vlan.
+	uci set network.lan.device='br-lan.169'
+	
+	# Creation of tvboxnet  #
+	uci set network.tvboxnet=interface
+	uci set network.tvboxnet.proto='static'
+	uci set network.tvboxnet.device='br-lan.23'
+	uci set network.tvboxnet.ipaddr='192.168.59.1'
+	uci set network.tvboxnet.netmask='255.255.255.0'
+	uci set network.tvboxnet.defaultroute='0'
+	uci set network.tvboxnet.delegate='0'
+	
+	uci set dhcp.tvboxnet='dhcp'
+	uci set dhcp.tvboxnet.interface='tvboxnet'
+	uci set dhcp.tvboxnet.start='2'
+	uci set dhcp.tvboxnet.limit='150'
+	uci set dhcp.tvboxnet.leasetime='12h'
+	
+	uci add firewall zone
+	uci set firewall.@zone[-1].name='tvboxnet'
+	uci add_list firewall.@zone[-1].network='tvboxnet'
+	uci set firewall.@zone[-1].input="ACCEPT"
+	uci set firewall.@zone[-1].output="ACCEPT"
+	uci set firewall.@zone[-1].forward="REJECT"
+
+    uci add firewall forwarding
+	uci set firewall.@forwarding[-1].src='tvboxnet'
+	uci set firewall.@forwarding[-1].dest='wan'
+	# end of creation of tvboxnet #
+	
+	# Creation of pcnet  #
+	uci set network.pcnet=interface
+	uci set network.pcnet.proto='static'
+	uci set network.pcnet.device='br-lan.49'
+	uci set network.pcnet.ipaddr='10.34.79.1'
+	uci set network.pcnet.netmask='255.255.255.0'
+	uci set network.pcnet.defaultroute='0'
+	uci set network.pcnet.delegate='0'
+	
+	uci set dhcp.pcnet='dhcp'
+	uci set dhcp.pcnet.interface='pcnet'
+	uci set dhcp.pcnet.start='2'
+	uci set dhcp.pcnet.limit='150'
+	uci set dhcp.pcnet.leasetime='12h'
+	
+	uci add firewall zone
+	uci set firewall.@zone[-1].name='pcnet'
+	uci add_list firewall.@zone[-1].network='pcnet'
+	uci set firewall.@zone[-1].input="ACCEPT"
+	uci set firewall.@zone[-1].output="ACCEPT"
+	uci set firewall.@zone[-1].forward="REJECT"
+
+    uci add firewall forwarding
+	uci set firewall.@forwarding[-1].src='pcnet'
+	uci set firewall.@forwarding[-1].dest='wgclient'
+	# end of creation of pcnet #
+	
+	# Creation of wlan0  #
+	uci set network.wlan0=interface
+	uci set network.wlan0.proto='static'
+	uci set network.wlan0.device='br-lan.50'
+	uci set network.wlan0.ipaddr='10.234.80.1'
+	uci set network.wlan0.netmask='255.255.255.0'
+	uci set network.wlan0.defaultroute='0'
+	uci set network.wlan0.delegate='0'
+	
+	uci set dhcp.wlan0='dhcp'
+	uci set dhcp.wlan0.interface='wlan0'
+	uci set dhcp.wlan0.start='2'
+	uci set dhcp.wlan0.limit='150'
+	uci set dhcp.wlan0.leasetime='12h'
+	
+	uci add firewall zone
+	uci set firewall.@zone[-1].name='wlan0'
+	uci add_list firewall.@zone[-1].network='wlan0'
+	uci set firewall.@zone[-1].input="ACCEPT"
+	uci set firewall.@zone[-1].output="ACCEPT"
+	uci set firewall.@zone[-1].forward="REJECT"
+
+    uci add firewall forwarding
+	uci set firewall.@forwarding[-1].src='wlan0'
+	uci set firewall.@forwarding[-1].dest='wifivpn'
+	# end of creation of wlan0 #
+	
+	# Creation of wlan1  #
+	uci set network.wlan1=interface
+	uci set network.wlan1.proto='static'
+	uci set network.wlan1.device='br-lan.51'
+	uci set network.wlan1.ipaddr='10.234.81.1'
+	uci set network.wlan1.netmask='255.255.255.0'
+	uci set network.wlan1.defaultroute='0'
+	uci set network.wlan1.delegate='0'
+	
+	uci set dhcp.wlan1='dhcp'
+	uci set dhcp.wlan1.interface='wlan1'
+	uci set dhcp.wlan1.start='2'
+	uci set dhcp.wlan1.limit='150'
+	uci set dhcp.wlan1.leasetime='12h'
+	
+	uci add firewall zone
+	uci set firewall.@zone[-1].name='wlan1'
+	uci add_list firewall.@zone[-1].network='wlan1'
+	uci set firewall.@zone[-1].input="ACCEPT"
+	uci set firewall.@zone[-1].output="ACCEPT"
+	uci set firewall.@zone[-1].forward="REJECT"
+
+    uci add firewall forwarding
+	uci set firewall.@forwarding[-1].src='wlan1'
+	uci set firewall.@forwarding[-1].dest='wifivpn'
+	# end of creation of wlan1 #
+	
+	# Creation of iot  #
+	uci set network.iot=interface
+	uci set network.iot.proto='static'
+	uci set network.iot.device='br-lan.52'
+	uci set network.iot.ipaddr='10.33.77.1'
+	uci set network.iot.netmask='255.255.255.0'
+	uci set network.iot.defaultroute='0'
+	uci set network.iot.delegate='0'
+	
+	uci set dhcp.iot='dhcp'
+	uci set dhcp.iot.interface='iot'
+	uci set dhcp.iot.start='2'
+	uci set dhcp.iot.limit='150'
+	uci set dhcp.iot.leasetime='12h'
+	
+	uci add firewall zone
+	uci set firewall.@zone[-1].name='iot'
+	uci add_list firewall.@zone[-1].network='iot'
+	uci set firewall.@zone[-1].input="ACCEPT"
+	uci set firewall.@zone[-1].output="ACCEPT"
+	uci set firewall.@zone[-1].forward="REJECT"
+
+    uci add firewall forwarding
+	uci set firewall.@forwarding[-1].src='iot'
+	uci set firewall.@forwarding[-1].dest='wan'
+	# end of creation of iot #
+	
+	# Creation of tvnet  #
+	uci set network.tvnet=interface
+	uci set network.tvnet.proto='static'
+	uci set network.tvnet.device='br-lan.53'
+	uci set network.tvnet.ipaddr='172.22.33.1'
+	uci set network.tvnet.netmask='255.255.255.0'
+	uci set network.tvnet.defaultroute='0'
+	uci set network.tvnet.delegate='0'
+	
+	uci set dhcp.tvnet='dhcp'
+	uci set dhcp.tvnet.interface='tvnet'
+	uci set dhcp.tvnet.start='2'
+	uci set dhcp.tvnet.limit='150'
+	uci set dhcp.tvnet.leasetime='12h'
+	
+	uci add firewall zone
+	uci set firewall.@zone[-1].name='tvnet'
+	uci add_list firewall.@zone[-1].network='tvnet'
+	uci set firewall.@zone[-1].input="ACCEPT"
+	uci set firewall.@zone[-1].output="ACCEPT"
+	uci set firewall.@zone[-1].forward="REJECT"
+
+    uci add firewall forwarding
+	uci set firewall.@forwarding[-1].src='tvnet'
+	uci set firewall.@forwarding[-1].dest='wan'
+	# end of creation of tvnet #
+	
+	# Creation of ps5  #
+	uci set network.ps5=interface
+	uci set network.ps5.proto='static'
+	uci set network.ps5.device='br-lan.89'
+	uci set network.ps5.ipaddr='10.56.2.1'
+	uci set network.ps5.netmask='255.255.255.0'
+	uci set network.ps5.defaultroute='0'
+	uci set network.ps5.delegate='0'
+	
+	uci set dhcp.ps5='dhcp'
+	uci set dhcp.ps5.interface='ps5'
+	uci set dhcp.ps5.start='2'
+	uci set dhcp.ps5.limit='150'
+	uci set dhcp.ps5.leasetime='12h'
+	
+	uci add firewall zone
+	uci set firewall.@zone[-1].name='ps5'
+	uci add_list firewall.@zone[-1].network='ps5'
+	uci set firewall.@zone[-1].input="ACCEPT"
+	uci set firewall.@zone[-1].output="ACCEPT"
+	uci set firewall.@zone[-1].forward="REJECT"
+
+    uci add firewall forwarding
+	uci set firewall.@forwarding[-1].src='ps5'
+	uci set firewall.@forwarding[-1].dest='wgclient'
+	# end of creation of ps5 #
+	
+	# Creation of ayaneo  #
+	uci set network.ayaneo=interface
+	uci set network.ayaneo.proto='static'
+	uci set network.ayaneo.device='br-lan.90'
+	uci set network.ayaneo.ipaddr='10.87.32.1'
+	uci set network.ayaneo.netmask='255.255.255.0'
+	uci set network.ayaneo.defaultroute='0'
+	uci set network.ayaneo.delegate='0'
+	
+	uci set dhcp.ayaneo='dhcp'
+	uci set dhcp.ayaneo.interface='ayaneo'
+	uci set dhcp.ayaneo.start='2'
+	uci set dhcp.ayaneo.limit='150'
+	uci set dhcp.ayaneo.leasetime='12h'
+	
+	uci add firewall zone
+	uci set firewall.@zone[-1].name='ayaneo'
+	uci add_list firewall.@zone[-1].network='ayaneo'
+	uci set firewall.@zone[-1].input="ACCEPT"
+	uci set firewall.@zone[-1].output="ACCEPT"
+	uci set firewall.@zone[-1].forward="REJECT"
+
+    uci add firewall forwarding
+	uci set firewall.@forwarding[-1].src='ayaneo'
+	uci set firewall.@forwarding[-1].dest='wgclient'
+	
+	uci add firewall forwarding
+	uci set firewall.@forwarding[-1].src='ayaneo'
+	uci set firewall.@forwarding[-1].dest='wifivpn'
+	# end of creation of ayaneo #
+	
+	# Creation of aqaranet  #
+	uci set network.aqaranet=interface
+	uci set network.aqaranet.proto='static'
+	uci set network.aqaranet.device='br-lan.178'
+	uci set network.aqaranet.ipaddr='10.233.10.1'
+	uci set network.aqaranet.netmask='255.255.255.0'
+	uci set network.aqaranet.defaultroute='0'
+	uci set network.aqaranet.delegate='0'
+	
+	uci set dhcp.aqaranet='dhcp'
+	uci set dhcp.aqaranet.interface='aqaranet'
+	uci set dhcp.aqaranet.start='2'
+	uci set dhcp.aqaranet.limit='150'
+	uci set dhcp.aqaranet.leasetime='12h'
+	
+	uci add firewall zone
+	uci set firewall.@zone[-1].name='aqaranet'
+	uci add_list firewall.@zone[-1].network='aqaranet'
+	uci set firewall.@zone[-1].input="ACCEPT"
+	uci set firewall.@zone[-1].output="ACCEPT"
+	uci set firewall.@zone[-1].forward="REJECT"
+
+    uci add firewall forwarding
+	uci set firewall.@forwarding[-1].src='aqaranet'
+	uci set firewall.@forwarding[-1].dest='wan'
+	# end of creation of aqaranet #
+	
+	# Creation of hwnet  #
+	uci set network.hwnet=interface
+	uci set network.hwnet.proto='static'
+	uci set network.hwnet.device='br-lan.179'
+	uci set network.hwnet.ipaddr='10.182.32.1'
+	uci set network.hwnet.netmask='255.255.255.0'
+	uci set network.hwnet.defaultroute='0'
+	uci set network.hwnet.delegate='0'
+	
+	uci set dhcp.hwnet='dhcp'
+	uci set dhcp.hwnet.interface='hwnet'
+	uci set dhcp.hwnet.start='2'
+	uci set dhcp.hwnet.limit='150'
+	uci set dhcp.hwnet.leasetime='12h'
+	
+	uci add firewall zone
+	uci set firewall.@zone[-1].name='hwnet'
+	uci add_list firewall.@zone[-1].network='hwnet'
+	uci set firewall.@zone[-1].input="ACCEPT"
+	uci set firewall.@zone[-1].output="ACCEPT"
+	uci set firewall.@zone[-1].forward="REJECT"
+
+    uci add firewall forwarding
+	uci set firewall.@forwarding[-1].src='hwnet'
+	uci set firewall.@forwarding[-1].dest='wan'
+	# end of creation of hwnet #
+	
+	# Creation of kvmnet  #
+	uci set network.kvmnet=interface
+	uci set network.kvmnet.proto='static'
+	uci set network.kvmnet.device='br-lan.180'
+	uci set network.kvmnet.ipaddr='10.46.214.1'
+	uci set network.kvmnet.netmask='255.255.255.0'
+	uci set network.kvmnet.defaultroute='0'
+	uci set network.kvmnet.delegate='0'
+	
+	uci set dhcp.kvmnet='dhcp'
+	uci set dhcp.kvmnet.interface='kvmnet'
+	uci set dhcp.kvmnet.start='2'
+	uci set dhcp.kvmnet.limit='150'
+	uci set dhcp.kvmnet.leasetime='12h'
+	
+	uci add firewall zone
+	uci set firewall.@zone[-1].name='kvmnet'
+	uci add_list firewall.@zone[-1].network='kvmnet'
+	uci set firewall.@zone[-1].input="ACCEPT"
+	uci set firewall.@zone[-1].output="ACCEPT"
+	uci set firewall.@zone[-1].forward="REJECT"
+
+    uci add firewall forwarding
+	uci set firewall.@forwarding[-1].src='kvmnet'
+	uci set firewall.@forwarding[-1].dest='wan'
+	# end of creation of kvmnet #
+	
+	uci commit network
+	uci commit firewall
+	uci commit dhcp
+fi
+
+exit 0
