@@ -121,17 +121,6 @@ then
 
 fi
 
-exit 0
+uci commit network
 
-config interface 'vx0'
-        option proto 'vxlan'
-        option peeraddr '10.6.7.2'
-        option tunlink 'wgserver'
-        option defaultroute '0'
-        option delegate '0'
-        option vid '4921'
-        option ipaddr '10.6.7.1'
-        option rxcsum '0'
-        option txcsum '0'
-        option mtu '1422'
-        option force_link '1'
+exit 0
