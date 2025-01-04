@@ -1,0 +1,11 @@
+#!/bin/sh
+
+# this fixes the tunnelvision/tunnelcrack vulnerability for wireguard
+
+if [ "$(uci -q get network.wan.classlessroute)" != "0" ]
+then
+	uci set network.wan.classlessroute="0"
+	uci commit network
+fi
+
+exit 0

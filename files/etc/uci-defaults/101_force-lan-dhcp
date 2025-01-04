@@ -1,0 +1,11 @@
+#!/bin/sh
+
+# set force lan to dhcp.
+
+if [ "$(uci -q get dhcp.lan.force)" != "1"]
+then
+	uci set dhcp.lan.force="1"
+	uci commit dhcp
+fi
+
+exit 0

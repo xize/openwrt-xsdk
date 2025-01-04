@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# this fix dns leaks.
+if [ "$(uci -q get network.wan.peerdns)" != "0" ]
+then
+	uci set network.wan.peerdns="0"
+	uci commit network
+fi
+
+exit 0

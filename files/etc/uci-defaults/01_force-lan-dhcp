@@ -1,8 +1,0 @@
-#!/bin/sh
-
-# set force lan to dhcp.
-
-uci set dhcp.lan.force='1'
-uci commit dhcp
-
-exit 0

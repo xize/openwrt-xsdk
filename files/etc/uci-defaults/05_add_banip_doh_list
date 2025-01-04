@@ -1,7 +1,0 @@
-#!/bin/sh
-
-uci add_list banip.global.ban_blockforwardlan='doh'
-uci set banip.global.ban_allowflag='4443 4445'
-uci commit banip
-
-exit 0
