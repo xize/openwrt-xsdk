@@ -19,7 +19,7 @@ then
 	fi
     uci set wireless.default_radio1.encryption='psk2+ccmp'
     uci set wireless.default_radio1.key="$(genpasswd 16)"
-    uci set wireless.default_radio1.ieee80211w='1'
+    uci set wireless.default_radio1.ieee80211w='2'
     uci set wireless.default_radio1.ocv='1'
     uci set wireless.default_radio1.macaddr='random'
 
