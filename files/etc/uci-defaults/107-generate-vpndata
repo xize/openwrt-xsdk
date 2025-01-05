@@ -7,7 +7,7 @@ then
     wg genkey | tee /tmp/privkey | wg pubkey > /tmp/pubkey   
     uci set network.wgclient='interface'
     uci set network.wgclient.proto='wireguard'
-    uci set network.wgclient.private_key='$(cat /tmp/privkey)'
+    uci set network.wgclient.private_key="$(cat /tmp/privkey)"
     uci set network.wgclient.addresses='10.64.132.12/32'
     uci set network.wgclient.defaultroute='0'
     uci set network.wgclient.mtu='1472'
@@ -26,7 +26,7 @@ then
     wg genkey | tee /tmp/privkey | wg pubkey > /tmp/pubkey
     uci set network.wg_pia='interface'
     uci set network.wg_pia.proto='wireguard'
-    uci set network.wg_pia.private_key='$(cat /tmp/privkey)'
+    uci set network.wg_pia.private_key="$(cat /tmp/privkey)"
     uci set network.wg_pia.addresses='10.6.193.223/32'
     uci set network.wg_pia.defaultroute='0'
     uci set network.wg_pia.mtu='1472'
@@ -45,7 +45,7 @@ then
     wg genkey | tee /tmp/privkey | wg pubkey > /tmp/pubkey
     uci set network.wifivpn='interface'
     uci set network.wifivpn.proto='wireguard'
-    uci set network.wifivpn.private_key='$(cat /tmp/privkey)'
+    uci set network.wifivpn.private_key="$(cat /tmp/privkey)"
     uci set network.wifivpn.listen_port='51820'
     uci add_list network.wifivpn.addresses='10.39.95.1/24'
     uci set network.wifivpn.defaultroute='0'
