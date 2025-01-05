@@ -86,8 +86,8 @@ set wireless.@wifi-station[-1].vid='52'
 set wireless.@wifi-station[-1].key="$(genpasswd 16)"
 EOI
 
-fi
-
 uci commit wireless
+
+fi
 
 exit 0

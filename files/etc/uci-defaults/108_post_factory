@@ -8,6 +8,4 @@ then
 	uci commit xsdk
 fi
 
-uci commit xsdk
-
 exit 0

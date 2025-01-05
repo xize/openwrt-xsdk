@@ -119,8 +119,7 @@ then
     uci set network.vx0.mtu='1422'
     uci set network.vx0.force_link='1'
 
+	uci commit network
 fi
-
-uci commit network
 
 exit 0
