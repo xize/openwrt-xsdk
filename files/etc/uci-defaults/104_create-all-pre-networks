@@ -3,7 +3,7 @@
 default_pcnet=$(uci -q get network.pcnet)
 router_model=$(ubus call system board | jsonfilter -e "@['board_name']")
 
-if [ "$default_pcnet" != "interface" -a "$(uci -q get xsdk.factory.init)" != "1" -a "$router_model" = "glinet,gl-mt6000" -o "$router_model" = "zyxel,ex5601-t0-ubootmod" ]
+if [ "$default_pcnet" != "interface" -a "$(uci -q get xsdk.@factory[0].init)" != "1" -a "$router_model" = "glinet,gl-mt6000" -o "$router_model" = "zyxel,ex5601-t0-ubootmod" ]
 then
 
 uci batch << EOI

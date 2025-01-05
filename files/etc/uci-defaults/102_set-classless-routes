@@ -2,7 +2,7 @@
 
 # this fixes the tunnelvision/tunnelcrack vulnerability for wireguard
 
-if [ "$(uci -q get network.wan.classlessroute)" != "0" -a "$(uci -q get xsdk.factory.init)" != "1" ]
+if [ "$(uci -q get network.wan.classlessroute)" != "0" -a "$(uci -q get xsdk.@factory[0].init)" != "1" ]
 then
 	uci set network.wan.classlessroute="0"
 	uci commit network

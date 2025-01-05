@@ -3,7 +3,7 @@
 proto=$(uci get network.wan.proto)
 router_model=$(ubus call system board | jsonfilter -e "@['board_name']")
 
-if [ "$proto" = "dhcp" -a "$(uci -q get network.lan.device)" != "br-lan.169" -a "$(uci -q get xsdk.factory.init)" != "1" ]
+if [ "$proto" = "dhcp" -a "$(uci -q get network.lan.device)" != "br-lan.169" -a "$(uci -q get xsdk.@factory[0].init)" != "1" ]
 then
     # set wan pppoe
     uci set network.wan.proto='pppoe'

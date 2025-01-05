@@ -4,7 +4,7 @@
 
 router_model=$(ubus call system board | jsonfilter -e "@['board_name']")
 
-if [ "$(uci -q get wireless.default_radio1.network)" != "wlan0" -a "$(uci -q get xsdk.factory.init)" != "1" ]
+if [ "$(uci -q get wireless.default_radio1.network)" != "wlan0" -a "$(uci -q get xsdk.@factory[0].init)" != "1" ]
 then
 
     uci set wireless.radio1.country='NL'

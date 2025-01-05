@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [ "$(uci -q get network.wgclient)" != "interface" -a "$(uci -q get xsdk.factory.init)" != "1" ]
+if [ "$(uci -q get network.wgclient)" != "interface" -a "$(uci -q get xsdk.@factory[0].init)" != "1" ]
 then
 
     # creating wgclient placeholder
