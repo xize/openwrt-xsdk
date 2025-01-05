@@ -1,5 +1,5 @@
 #!/bin/sh
-if [ "$(uci -q get network.@rule[0].dest)" != "1.1.1.1/32" ]
+if [ "$(uci -q get network.@rule[0].dest)" != "1.1.1.1/32" -a "$(uci -q get xsdk.factory.init)" != "1" ]
 then
 uci batch <<EOI
 uci add firewall rule

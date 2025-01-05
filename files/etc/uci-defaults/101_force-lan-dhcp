@@ -2,7 +2,7 @@
 
 # set force lan to dhcp.
 
-if [ "$(uci -q get dhcp.lan.force)" != "1"]
+if [ "$(uci -q get dhcp.lan.force)" != "1" -a "$(uci -q get xsdk.factory.init)" != "1" ]
 then
 	uci set dhcp.lan.force="1"
 	uci commit dhcp

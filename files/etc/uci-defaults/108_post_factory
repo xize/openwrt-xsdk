@@ -1,0 +1,10 @@
+#!/bin/sh
+
+if [ "$(uci -q get xsdk.factory.init)" != "1" ]
+then
+	uci set xsdk.factory.init='1'
+fi
+
+uci commit xsdk
+
+exit 0

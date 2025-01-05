@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # this fix dns leaks.
-if [ "$(uci -q get network.wan.peerdns)" != "0" ]
+if [ "$(uci -q get network.wan.peerdns)" != "0" -a "$(uci -q get xsdk.factory.init)" != "1" ]
 then
 	uci set network.wan.peerdns="0"
 	uci commit network
