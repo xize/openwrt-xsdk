@@ -257,6 +257,25 @@ then
 	fi
     uci set network.@bridge-vlan[-1].vlan='180'
 
+    # vlan for betatest
+	uci add network bridge-vlan
+    uci set network.@bridge-vlan[-1].device='br-lan'
+	if [ "$router_model" = "glinet,gl-mt6000" ]
+	then
+		uci add_list network.@bridge-vlan[-1].ports='lan1:t'
+		uci add_list network.@bridge-vlan[-1].ports='lan2:t'
+		uci add_list network.@bridge-vlan[-1].ports='lan3:t'
+		uci add_list network.@bridge-vlan[-1].ports='lan4:t'
+		uci add_list network.@bridge-vlan[-1].ports='lan5:t'
+    elif [ "$router_model" = "zyxel,ex5601-t0-ubootmod" ]
+	then
+		uci add_list network.@bridge-vlan[-1].ports='lan1:t'
+		uci add_list network.@bridge-vlan[-1].ports='lan2:t'
+		uci add_list network.@bridge-vlan[-1].ports='lan3:t'
+		uci add_list network.@bridge-vlan[-1].ports='lan4:t'
+	fi
+    uci set network.@bridge-vlan[-1].vlan='62'
+
     uci commit network
 fi
 

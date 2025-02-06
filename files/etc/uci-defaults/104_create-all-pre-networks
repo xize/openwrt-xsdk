@@ -314,6 +314,32 @@ set firewall.@zone[-1].forward="REJECT"
 add firewall forwarding
 set firewall.@forwarding[-1].src="kvmnet"
 set firewall.@forwarding[-1].dest="wan"
+
+set network.betatest=interface
+set network.betatest.proto="static"
+set network.betatest.device="br-lan.62"
+set network.betatest.ipaddr="10.245.78.1"
+set network.betatest.netmask="255.255.255.0"
+set network.betatest.defaultroute="0"
+set network.betatest.delegate="0"
+	
+set dhcp.betatest="dhcp"
+set dhcp.betatest.interface="betatest"
+set dhcp.betatest.start="2"
+set dhcp.betatest.limit="150"
+set dhcp.betatest.leasetime="12h"
+	
+add firewall zone
+set firewall.@zone[-1].name="beta"
+add_list firewall.@zone[-1].network="betatest"
+set firewall.@zone[-1].input="ACCEPT"
+set firewall.@zone[-1].output="ACCEPT"
+set firewall.@zone[-1].forward="REJECT"
+
+add firewall forwarding
+set firewall.@forwarding[-1].src="beta"
+set firewall.@forwarding[-1].dest="wan"
+
 EOI
 	
 	uci commit network
