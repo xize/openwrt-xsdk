@@ -1,0 +1,32 @@
+#!/bin/sh
+
+if [ "$(uci -q get xsdk.@factory[0].init)" != "1" ]; then
+
+    # allow any zone to use lancache, we do use /etc/dnsmasq.conf with the configuration provided from ukclans.
+    uci add firewall rule
+    uci set firewall.@rule[-1].name='allow-lancache-from-any'
+    uci set firewall.@rule[-1].src='*'
+    uci set firewall.@rule[-1].dest='proxmox'
+    uci set firewall.@rule[-1].dest_port='80 443 53'
+    uci set firewall.@rule[-1].dest_ip='10.244.244.5'
+
+    # now that we use dns hijacking on wgserver, we do not want lancache to be used, lets mark it.
+    uci add firewall rule
+    uci set firewall.@rule[-1].name='mark-wgserver-exclude-lancache'
+    uci set firewall.@rule[-1].src='wgserver'
+    uci set firewall.@rule[-1].dest_port='53'
+    uci set firewall.@rule[-1].target='MARK'
+    uci set firewall.@rule[-1].set_mark='0x2FA0'
+    
+    # and forward the packet directly to our nextdns instance with mark 0x2FA0.
+    uci add firewall redirect
+    uci set firewall.@redirect[-1].target='DNAT'
+    uci set firewall.@redirect[-1].src='wgserver'
+    uci set firewall.@redirect[-1].src_dport='53'
+    uci set firewall.@redirect[-1].dest_port='5342'
+    uci set firewall.@redirect[-1].mark='0x2FA0'
+
+
+fi
+
+exit 0

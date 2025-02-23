@@ -340,6 +340,58 @@ add firewall forwarding
 set firewall.@forwarding[-1].src="beta"
 set firewall.@forwarding[-1].dest="wan"
 
+# proxmox
+set network.proxmox=interface
+set network.proxmox.proto="static"
+set network.proxmox.device="br-lan.70"
+set network.proxmox.ipaddr="10.244.244.1"
+set network.proxmox.netmask="255.255.255.0"
+set network.proxmox.defaultroute="0"
+set network.proxmox.delegate="0"
+	
+set dhcp.proxmox="dhcp"
+set dhcp.proxmox.interface="proxmox"
+set dhcp.proxmox.start="2"
+set dhcp.proxmox.limit="150"
+set dhcp.proxmox.leasetime="12h"
+	
+add firewall zone
+set firewall.@zone[-1].name="proxmox"
+add_list firewall.@zone[-1].network="proxmox"
+set firewall.@zone[-1].input="ACCEPT"
+set firewall.@zone[-1].output="ACCEPT"
+set firewall.@zone[-1].forward="REJECT"
+
+add firewall forwarding
+set firewall.@forwarding[-1].src="proxmox"
+set firewall.@forwarding[-1].dest="wan"
+
+# proxmox_vpn
+set network.proxmox_vpn=interface
+set network.proxmox_vpn.proto="static"
+set network.proxmox_vpn.device="br-lan.71"
+set network.proxmox_vpn.ipaddr="10.245.245.1"
+set network.proxmox_vpn.netmask="255.255.255.0"
+set network.proxmox_vpn.defaultroute="0"
+set network.proxmox_vpn.delegate="0"
+	
+set dhcp.proxmox_vpn="dhcp"
+set dhcp.proxmox_vpn.interface="proxmox_vpn"
+set dhcp.proxmox_vpn.start="2"
+set dhcp.proxmox_vpn.limit="150"
+set dhcp.proxmox_vpn.leasetime="12h"
+	
+add firewall zone
+set firewall.@zone[-1].name="proxmox_vpn"
+add_list firewall.@zone[-1].network="proxmox_vpn"
+set firewall.@zone[-1].input="ACCEPT"
+set firewall.@zone[-1].output="ACCEPT"
+set firewall.@zone[-1].forward="REJECT"
+
+add firewall forwarding
+set firewall.@forwarding[-1].src="proxmox_vpn"
+set firewall.@forwarding[-1].dest="wgclient"
+
 EOI
 	
 	uci commit network

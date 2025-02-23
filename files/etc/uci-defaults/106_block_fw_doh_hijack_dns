@@ -16,6 +16,7 @@ uci set firewall.@rule[-1].dest='wgclient'
 uci set firewall.@rule[-1].dest_port='853'
 uci set firewall.@rule[-1].target='REJECT'
 
+# since we add hijacking for all zones, wgserver is excluded by a prioritized redirect rule.
 uci add firewall redirect
 uci set firewall.@redirect[-1].name='hijack-dns'
 uci set firewall.@redirect[-1].src='*'
