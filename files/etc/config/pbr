@@ -38,11 +38,11 @@ config policy
 	option name 'bypass domain'
 	option src_addr '10.6.7.0/24 10.234.80.0/24 10.87.32.0/24 10.34.79.0/24 10.39.95.0/24 10.56.2.0/24'
 	option interface 'wan'
-	option dest_addr 'env.vechain.org deploy.static.akamaitechnologies.com lancache.steamcontent.com spotifycdn.com scdn.co sony.akadns.net prod.dl.playstation.net.edgesuite.net sonycoment.loris-e.llnwd.net prod.dl.playstation.net steamcontent.com jumbo.com gls-info.nl outlook.com live.com postnl.nl vlscppe.microsoft.com git.openwrt.org underarmour.nl live.com microsoft.com outlook.com rewasd.com spotify.com worldpay.com whatismyip.com aqara.com reddit.com grc.com'
+	option dest_addr 'smartthings.com samsungosp.com samsungiots.com samsungqbe.com samsungcloudsolution.com samsungapps.com samsungiotcloud.com hideez.com samsung.com playstation.net env.vechain.org deploy.static.akamaitechnologies.com lancache.steamcontent.com spotifycdn.com scdn.co sony.akadns.net prod.dl.playstation.net.edgesuite.net sonycoment.loris-e.llnwd.net prod.dl.playstation.net steamcontent.com jumbo.com gls-info.nl outlook.com live.com postnl.nl vlscppe.microsoft.com git.openwrt.org underarmour.nl live.com microsoft.com outlook.com rewasd.com spotify.com worldpay.com whatismyip.com aqara.com reddit.com grc.com'
 
 config policy
 	option name 'route-vpn'
-	option src_addr '10.234.80.0/24 10.39.95.0/24 10.6.7.0/24 10.34.79.0/24 192.168.99.0/24 10.87.32.0/24'
+	option src_addr '10.245.245.0/24 10.234.80.0/24 10.39.95.0/24 10.6.7.0/24 10.34.79.0/24 192.168.99.0/24 10.87.32.0/24'
 	option interface 'wgclient'
 
 config policy
