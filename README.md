@@ -1,6 +1,6 @@
 ![OpenWrt logo](include/logo.png)
 
-This is a more personalized fork of @OpenWrt/OpenWrt with pre-configuration builded in, please assist checking /files/etc/uci-defaults since these images are not feasible for all people, it's for better ease of use for myself to make testing alot more robust.
+This is a more personalized fork of [OpenWrt](https://github.com/openwrt/openwrt) with pre-configuration builded in, please assist checking /files/etc/uci-defaults since these images are not feasible for all people, it's for better ease of use for myself to make testing alot more robust.
 
 for lancache (a external server on ``10.244.244.5`` not in OpenWrt):
 
@@ -17,3 +17,5 @@ make defconfig
 make -r
 
 ```
+
+[for OpenWrt direct readme go here](README_OpenWrt.md)
