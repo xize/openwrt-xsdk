@@ -4,3 +4,6 @@
 [submodule "package/feeds/luci/luci-app-argon-config"]
 	path = package/feeds/luci/luci-app-argon-config
 	url = https://github.com/jerrykuku/luci-app-argon-config
+[submodule "package/utils/zyxel-t56-wireless-scripts-wifi-button"]
+	path = package/utils/zyxel-t56-wireless-scripts-wifi-button
+	url = https://github.com/xize/zyxel-t56-wireless-scripts-wifi-button

@@ -7,6 +7,7 @@ then
   git submodule update --init --recursive
   git submodule foreach --recursive git fetch
   git submodule foreach git merge origin master
+  git submodule foreach git merge origin main
   exit 0
 fi
 
@@ -24,5 +25,6 @@ echo "ensure, all git module feeds are setup."
 git submodule update --init --recursive
 git submodule foreach --recursive git fetch
 git submodule foreach git merge origin master
+git submodule foreach git merge origin main
 
 exit 0
