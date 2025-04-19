@@ -71,7 +71,8 @@ echo "CONFIG_PACKAGE_luci_mod_dashboard=y" >> .config
 make defconfig
 make -r -j4
 ```
+The resulting size should be around 18mb for the sysupgrade version, if it is lower please verify the ``config.buildinfo`` and check if the luci-proto-* and luci-app-* are set to ``y`` a wrong build results into only compiling bare bone luci with argon theme without the apps and mods or wireless tab only luci-app-argon-config tab is visible.. this is due to a piping issue within the jenkins-ci environment, therefor it is already extremely limited what we can use to update the feeds list or the build fails i.e ``make menuconfig`` and verbose debugging, ``make defconfig`` is supposed to update this but something bugs here, it only adds the proper packages when you recompile it.
 
-What I have commented out here is the old working way, but I thought it could be cleaner by using submodules (not fully tested), this could also help others finding a way to compile pesa1234's amazing builds with different packages.
+What I have commented out here is the old working way, but I thought it could be cleaner by using submodules (not fully tested), this serves as a pointer to also help others finding a way to compile pesa1234's amazing builds with different packages.
 
 [for OpenWrt direct readme go here](README_OpenWrt.md)
