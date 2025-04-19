@@ -65,7 +65,7 @@ echo "CONFIG_PACKAGE_luci-app-pbr=y" >> .config
 echo "CONFIG_PACKAGE_luci-app-sqm=y" >> .config
 echo "CONFIG_PACKAGE_luci-app-ddns=y" >> .config
 echo "CONFIG_PACKAGE_ddns-scripts-noip=y" >> .config
-echo "CONFIG_PACKAGE_luci_mod_dashboard=y" >> .config
+echo "CONFIG_PACKAGE_luci-mod-dashboard=y" >> .config
 ./scripts/feeds update -a
 ./scripts/feeds install -a
 make defconfig
