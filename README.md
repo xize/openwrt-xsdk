@@ -8,7 +8,7 @@ rename ``/etc/dnsmasq.conf.lancache`` to ``/etc/dnsmasq.conf`` if you don't host
 
 a typical jenkins-ci script runs like:
 
-```
+```bash
 cp profiles/mt6000.profile .config
 ./setup.sh skip
 ./scripts/feeds update -a
@@ -20,32 +20,37 @@ make -r
 
 I  also wrote a jenkins shell script to add factory configuration to the builds from pesa1234 [for the .config](https://github.com/pesa1234/MT6000_cust_build) and [for the build env](https://github.com/pesa1234/openwrt/tree/next-r4.5.34.rss.mtk).
 ```bash
+# check if bin folder exists, delete if exists we do not want multiple revisions because that creates issues with archiving artifacts.
 [ -e "bin" ] && rm -rf bin/*
+#  check if the feeds folder and luci feed folder exists to avoid errors which make the jenkins job fail.
 [ ! -e "package/feeds" ] && mkdir package/feeds
 [ ! -e "package/feeds/luci" ] && mkdir package/feeds/luci
 cd package/feeds/luci
+# end sanity checks for luci feeds.
+
+# prepare feed to add luci-theme-argon and luci-theme-argon-config
 if [ -e "luci-theme-argon" ];
 then
-#cd luci-theme-argon
-#git fetch origin master
-#git pull origin master --no-ff
-#cd ..
-#cd luci-app-argon-config
-#git fetch origin master
-#git pull origin master --no-ff
-#cd ..
+# update submodules, if correct this will merge it automaticly (we need to test this).
 git submodule update --remote
 else
-#git clone https://github.com/jerrykuku/luci-theme-argon
-#git clone https://github.com/jerrykuku/luci-app-argon-config
 git submodule add -f https://github.com/jerrykuku/luci-theme-argon
 git submodule add -f https://github.com/jerrykuku/luci-app-argon-config
 fi
+# end luci-theme-argon feed logic
+
+#return back to workdir root.
 cd ../../../
+# end returning to workdir root.
+
+# add factory configuration 1:1 as from xsdk,  this stub can be removed if factory config is not needed.
 [ -e "openwrt-flint2-testing" ] && rm -rf openwrt-flint2-testing
 git clone https://github.com/xize/openwrt-flint2-testing
 cp -r openwrt-flint2-testing/files files/
 rm -rf openwrt-flint2-testing
+# end factory configuration placement.
+
+# to avoid dupes in the .config, we delete .config with the package metadata and use the clean one from pesa1234's repo then we add our own packages on top of these.
 [ -e ".config" ] && rm .config
 wget https://raw.githubusercontent.com/pesa1234/MT6000_cust_build/refs/heads/main/config_file/.config
 echo "CONFIG_PACKAGE_luci-theme-argon=y" >> .config
@@ -68,6 +73,7 @@ echo "CONFIG_PACKAGE_ddns-scripts-noip=y" >> .config
 echo "CONFIG_PACKAGE_luci-mod-dashboard=y" >> .config
 echo "CONFIG_PACKAGE_libcurl=y" >> .config
 echo "CONFIG_PACKAGE_drill=y" >> .config
+# end adding our own packages to pesa1234 original package list.
 ./scripts/feeds update -a
 ./scripts/feeds install -a
 make defconfig
