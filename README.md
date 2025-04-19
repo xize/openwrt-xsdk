@@ -19,7 +19,7 @@ make -r
 ```
 
 I  also wrote a jenkins shell script to add factory configuration to the builds from pesa1234 [for the .config](https://github.com/pesa1234/MT6000_cust_build) and [for the build env](https://github.com/pesa1234/openwrt/tree/next-r4.5.34.rss.mtk).
-```
+```bash
 [ -e "bin" ] && rm -rf bin/*
 [ ! -e "package/feeds" ] && mkdir package/feeds
 [ ! -e "package/feeds/luci" ] && mkdir package/feeds/luci
