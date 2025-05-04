@@ -91,6 +91,14 @@ then
     uci set network.wgserver.delegate='0'
     uci set network.wgserver.mtu='1472'
 
+    uci add firewall redirect
+    uci set firewall.@redirect[-1].name="forward-wgserver"
+    uci set firewall.@redirect[-1].proto="udp"
+    uci set firewall.@redirect[-1].src="wan"
+    uci set firewall.@redirect[-1].src_dport="4443"
+    uci set firewall.@redirect[-1].dest="wgserver"
+    uci set firewall.@redirect[-1].dest_ip="10.6.7.1"
+
     wg genkey | tee /tmp/privkey | wg pubkey > /tmp/pubkey
     uci add network wireguard_wgserver
     uci set network.@wireguard_wgserver[-1].description='MT3000'
@@ -101,6 +109,29 @@ then
     uci set network.@wireguard_wgserver[-1].endpoint_host='192.168.122.4'
     uci set network.@wireguard_wgserver[-1].persistent_keepalive='25'
     uci add_list network.@wireguard_wgserver[-1].allowed_ips='10.6.7.2/32'
+
+
+    wg genkey | tee /tmp/privkey | wg pubkey > /tmp/pubkey
+    uci add network wireguard_wgserver
+    uci set network.@wireguard_wgserver[-1].description='Slate7'
+    uci set network.@wireguard_wgserver[-1].public_key="$(cat /tmp/pubkey)"
+    uci set network.@wireguard_wgserver[-1].private_key="$(cat /tmp/privkey)"
+    uci set network.@wireguard_wgserver[-1].preshared_key="$(wg genpsk)"
+    uci set network.@wireguard_wgserver[-1].route_allowed_ips='1'
+    uci set network.@wireguard_wgserver[-1].endpoint_host='192.168.122.4'
+    uci set network.@wireguard_wgserver[-1].persistent_keepalive='25'
+    uci add_list network.@wireguard_wgserver[-1].allowed_ips='10.6.7.3/32'
+
+    wg genkey | tee /tmp/privkey | wg pubkey > /tmp/pubkey
+    uci add network wireguard_wgserver
+    uci set network.@wireguard_wgserver[-1].description="Restricted-User"
+    uci set network.@wireguard_wgserver[-1].public_key="$(cat /tmp/pubkey)"
+    uci set network.@wireguard_wgserver[-1].private_key="$(cat /tmp/privkey)"
+    uci set network.@wireguard_wgserver[-1].preshared_key="$(wg genpsk)"
+    uci set network.@wireguard_wgserver[-1].route_allowed_ips='1'
+    uci set network.@wireguard_wgserver[-1].endpoint_host='192.168.122.4'
+    uci set network.@wireguard_wgserver[-1].persistent_keepalive='25'
+    uci add_list network.@wireguard_wgserver[-1].allowed_ips='10.6.7.4/32'
 
     rm /tmp/privkey
     rm /tmp/pubkey
@@ -120,6 +151,7 @@ then
     uci set network.vx0.force_link='1'
 
 	uci commit network
+    uci commit firewall
 fi
 
 exit 0

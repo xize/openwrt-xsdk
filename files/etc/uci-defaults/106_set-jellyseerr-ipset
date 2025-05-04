@@ -1,7 +1,8 @@
 #!/bin/sh
-if [ "$(uci -q get xsdk.@factory[0].init)" != "1" ]; then
+if [ "$(uci -q get xsdk.@factory[0].init)" != "1" ]
+then
 
-    batch << EOI
+uci batch << EOI
     add dhcp ipset
     set dhcp.@ipset[-1].name="tmdb"
     add_list dhcp.@ipset[-1].domain="image.tmdb.org"
@@ -64,7 +65,7 @@ if [ "$(uci -q get xsdk.@factory[0].init)" != "1" ]; then
     add_list firewall.@rule[-1].src_ip='10.6.7.4'
     set firewall.@rule[-1].family='ipv4'
 
-    EOI
+EOI
 
     uci commit dhcp
     uci commit firewall

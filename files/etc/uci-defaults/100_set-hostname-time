@@ -1,0 +1,30 @@
+#!/bin/sh
+
+router_model=$(ubus call system board | jsonfilter -e "@['board_name']")
+router_title="X-SDK"
+
+case "$router_model" in
+   "zyxel,ex5601-t0-ubootmod")
+        router_title="T-56" 
+   ;;
+   "glinet,gl-mt6000")
+        router_title="MT6000" 
+   ;;
+esac
+
+echo $router_title
+
+if [ "$(uci -q get xsdk.@factory[0].init)" != "1" ]
+then
+uci batch << EOI
+set system.@system[0].hostname="$(router_title)"
+set system.@system[0].timezone="CET-1CEST,M3.5.0,M10.5.0/3"
+set system.@system[0].zonename="Europe/Amsterdam"
+set system.@system[0].cronloglevel="7"
+EOI
+
+uci commit system
+
+fi
+
+exit 0

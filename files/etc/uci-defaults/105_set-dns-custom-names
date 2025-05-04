@@ -1,5 +1,6 @@
 #!/bin/sh
-if [ "$(uci -q get xsdk.@factory[0].init)" != "1" ]; then
+if [ "$(uci -q get xsdk.@factory[0].init)" != "1" ]
+then
 	
 	uci batch << EOI
 	#kvmnet
@@ -82,11 +83,11 @@ if [ "$(uci -q get xsdk.@factory[0].init)" != "1" ]; then
 
 	add dhcp domain
 	set dhcp.@domain[-1].name="openwrtbuilder.lan"
-	set dhcp@domain[-1].ip="10.244.244.3"
+	set dhcp.@domain[-1].ip="10.244.244.3"
 
 	add dhcp domain
 	set dhcp.@domain[-1].name="unifi.lan"
-	set dhcp@domain[-1].ip="10.234.53.122"
+	set dhcp.@domain[-1].ip="10.234.53.122"
 
 	# end proxmox
 
@@ -103,7 +104,7 @@ if [ "$(uci -q get xsdk.@factory[0].init)" != "1" ]; then
 	set dhcp.@domain[-1].name="switch3.lan"
 	set dhcp.@domain[-1].ip="10.234.53.25"
 
-	EO
+EOI
 
 	uci commit dhcp
 	
