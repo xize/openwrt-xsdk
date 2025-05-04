@@ -1,0 +1,57 @@
+#!/bin/sh
+if [ "$(uci -q get network.@rule[0].dest)" != "1.1.1.1/32" -a "$(uci -q get xsdk.@factory[0].init)" != "1" ]
+then
+uci batch <<EOI
+uci add firewall rule
+uci set firewall.@rule[-1].name='block-dot-wan'
+uci set firewall.@rule[-1].src='*'
+uci set firewall.@rule[-1].dest='wan'
+uci set firewall.@rule[-1].dest_port='853'
+uci set firewall.@rule[-1].target='REJECT'
+
+uci add firewall rule
+uci set firewall.@rule[-1].name='block-dot-wgclient'
+uci set firewall.@rule[-1].src='*'
+uci set firewall.@rule[-1].dest='wgclient'
+uci set firewall.@rule[-1].dest_port='853'
+uci set firewall.@rule[-1].target='REJECT'
+
+# since we add hijacking for all zones, wgserver is excluded by a prioritized redirect rule.
+uci add firewall redirect
+uci set firewall.@redirect[-1].name='hijack-dns'
+uci set firewall.@redirect[-1].src='*'
+uci set firewall.@redirect[-1].src_dport='53'
+uci set firewall.@redirect[-1].target='DNAT'
+
+uci add network rule
+uci set network.@rule[-1].action='blackhole'
+uci set network.@rule[-1].dest='1.1.1.1/32'
+uci set network.@rule[-1].lookup='main'
+
+uci add network rule
+uci set network.@rule[-1].action='blackhole'
+uci set network.@rule[-1].dest='1.1.1.2/32'
+uci set network.@rule[-1].lookup='main'
+
+
+uci add network rule
+uci set network.@rule[-1].action='blackhole'
+uci set network.@rule[-1].dest='1.1.1.3/32'
+uci set network.@rule[-1].lookup='main'
+
+uci add network rule
+uci set network.@rule[-1].action='blackhole'
+uci set network.@rule[-1].dest='8.8.8.8/32'
+uci set network.@rule[-1].lookup='main'
+
+uci add network rule
+uci set network.@rule[-1].action='blackhole'
+uci set network.@rule[-1].dest='8.8.4.4/32'
+uci set network.@rule[-1].lookup='main'
+EOI
+
+uci commit firewall
+uci commit network
+fi
+
+exit 0
