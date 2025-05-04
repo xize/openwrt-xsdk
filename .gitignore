@@ -34,3 +34,4 @@ git-src
 .cproject
 .ccache
 .vscode*
+package/feeds/luci/luci-theme-argon
