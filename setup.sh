@@ -12,11 +12,13 @@ then
   then
    cd xsdk-uci-defaults
    git checkout dumbap --force
+   git pull
    rm -rf ../files
    cp -rf files ../files
   else
    cd xsdk-uci-defaults
    git checkout main --force
+   git pull
    rm -rf ../files
    cp -rf files ../files
   fi
@@ -44,11 +46,13 @@ if [ "$1" = "dumbap" ];
 then
   cd xsdk-uci-defaults
   git checkout dumbap --force
+  git pull
   rm -rf ../files
   cp -rf files ../files
 else
   cd xsdk-uci-defaults
   git checkout main --force
+  git pull
   rm -rf ../files
   cp -rf files ../files
 fi
