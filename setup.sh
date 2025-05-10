@@ -8,6 +8,15 @@ then
   git submodule foreach --recursive git fetch
   git submodule foreach git merge origin master
   git submodule foreach git merge origin main
+  if [ "$2" = "dumbap" ]
+  then
+    cd xsdk-uci-defaults
+    git checkout dumbap
+    cp -rf files ../files
+  elif
+    cp -rf xsdk-uci-defaults/files files
+  fi
+  
   exit 0
 fi
 
@@ -26,5 +35,14 @@ git submodule update --init --recursive
 git submodule foreach --recursive git fetch
 git submodule foreach git merge origin master
 git submodule foreach git merge origin main
+
+if [ "$1" = "dumbap" ]
+then
+  cd xsdk-uci-defaults
+  git checkout dumbap
+  cp -rf files ../files
+elif
+  cp -rf xsdk-uci-defaults/files files
+fi
 
 exit 0

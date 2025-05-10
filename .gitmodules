@@ -7,3 +7,6 @@
 [submodule "package/utils/zyxel-t56-wireless-scripts-wifi-button"]
 	path = package/utils/zyxel-t56-wireless-scripts-wifi-button
 	url = https://github.com/xize/zyxel-t56-wireless-scripts-wifi-button
+[submodule "xsdk-uci-defaults"]
+	path = xsdk-uci-defaults
+	url = https://github.com/xize/xsdk-uci-defaults
