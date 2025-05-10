@@ -10,3 +10,4 @@
 [submodule "xsdk-uci-defaults"]
 	path = xsdk-uci-defaults
 	url = https://github.com/xize/xsdk-uci-defaults
+	branch = main
