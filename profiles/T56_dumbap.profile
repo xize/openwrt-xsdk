@@ -1,6 +1,6 @@
 CONFIG_TARGET_mediatek=y
 CONFIG_TARGET_mediatek_filogic=y
-CONFIG_TARGET_mediatek_filogic_DEVICE_zyxel_ex5601-t0-stock=y
+CONFIG_TARGET_mediatek_filogic_DEVICE_zyxel_ex5601-t0-ubootmod=y
 CONFIG_LIBCURL_COOKIES=y
 CONFIG_LIBCURL_FILE=y
 CONFIG_LIBCURL_FTP=y
