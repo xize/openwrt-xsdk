@@ -5,20 +5,20 @@ then
   echo "bypassing interraction for luci git submodules ;-)"
   git config --global submodule.recurse true
   git submodule update --init --recursive
-  git submodule foreach --recursive git fetch
-  git submodule foreach git merge origin master 
-  git submodule foreach git merge origin main 
+   
   if [ "$2" = "dumbap" ];
   then
    cd xsdk-uci-defaults
    git checkout dumbap --force
-   git pull --rebase=false
+   git fetch origin dumbap
+   git pull origin dumbap --rebase=false
    rm -rf ../files
    cp -rf files ../files
   else
    cd xsdk-uci-defaults
    git checkout main --force
-   git pull --rebase=false
+   git fetch origin main
+   git pull origin main --rebase=false
    rm -rf ../files
    cp -rf files ../files
   fi
@@ -38,20 +38,17 @@ fi
 
 echo "ensure, all git module feeds are setup."
 git submodule update --init --recursive
-git submodule foreach --recursive git fetch
-git submodule foreach git merge origin master
-git submodule foreach git merge origin main
 
 if [ "$1" = "dumbap" ];
 then
   cd xsdk-uci-defaults
   git checkout dumbap --force
-  git pull --rebase=false
+  git pull origin dumbap --rebase=false
   rm -rf ../files
   cp -rf files ../files
 else
   cd xsdk-uci-defaults
-  git checkout main --force
+  git checkout origin main --force
   git pull --rebase=false
   rm -rf ../files
   cp -rf files ../files
