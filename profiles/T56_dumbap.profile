@@ -56,6 +56,8 @@ CONFIG_PACKAGE_liblucihttp-lua=y
 CONFIG_PACKAGE_liblucihttp-ucode=y
 CONFIG_PACKAGE_libnghttp2=y
 CONFIG_PACKAGE_libopenssl=y
+CONFIG_PACKAGE_libopenssl-conf=y
+CONFIG_PACKAGE_libopenssl-legacy=y
 CONFIG_PACKAGE_libpcap=y
 CONFIG_PACKAGE_libpthread=y
 CONFIG_PACKAGE_librt=y
@@ -103,5 +105,7 @@ CONFIG_PACKAGE_uhttpd=y
 CONFIG_PACKAGE_uhttpd-mod-ubus=y
 CONFIG_PACKAGE_vxlan=y
 CONFIG_PACKAGE_wireguard-tools=y
+# CONFIG_PACKAGE_wpad-basic-mbedtls is not set
+CONFIG_PACKAGE_wpad-openssl=y
 CONFIG_PACKAGE_zyxel-t56-wireless-scripts-wifi-button=y
 # CONFIG_PER_FEED_REPO is not set

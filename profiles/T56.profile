@@ -122,6 +122,8 @@ CONFIG_PACKAGE_libnghttp2=y
 CONFIG_PACKAGE_libnl-core=y
 CONFIG_PACKAGE_libnl-route=y
 CONFIG_PACKAGE_libopenssl=y
+CONFIG_PACKAGE_libopenssl-conf=y
+CONFIG_PACKAGE_libopenssl-legacy=y
 CONFIG_PACKAGE_libpcap=y
 CONFIG_PACKAGE_libpcre2=y
 CONFIG_PACKAGE_libpthread=y
@@ -193,6 +195,8 @@ CONFIG_PACKAGE_uhttpd-mod-ubus=y
 CONFIG_PACKAGE_vxlan=y
 CONFIG_PACKAGE_wget-ssl=y
 CONFIG_PACKAGE_wireguard-tools=y
+# CONFIG_PACKAGE_wpad-basic-mbedtls is not set
+CONFIG_PACKAGE_wpad-basic-openssl=y
 CONFIG_PACKAGE_xtables-nft=y
 # CONFIG_PER_FEED_REPO is not set
 CONFIG_VERSIONOPT=y
