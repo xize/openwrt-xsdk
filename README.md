@@ -9,13 +9,13 @@ rename ``/etc/dnsmasq.conf.lancache`` to ``/etc/dnsmasq.conf`` if you don't host
 a typical jenkins-ci script runs like:
 
 ```bash
-cp profiles/mt6000.profile .config
+cp -f profiles/mt6000.profile .config
 ./setup.sh skip
 ./scripts/feeds update -a
 ./scripts/feeds install -a
-make defconfig
-make -r
-
+make -j1 defconfig
+make -j1 download
+make -r -j8
 ```
 
 I  also wrote a jenkins shell script to add factory configuration to the builds from pesa1234 [for the .config](https://github.com/pesa1234/MT6000_cust_build) and [for the build env](https://github.com/pesa1234/openwrt/tree/next-r4.5.34.rss.mtk).
