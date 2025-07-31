@@ -6,3 +6,4 @@ src-git video https://github.com/openwrt/video.git
 #src-git targets https://github.com/openwrt/targets.git
 #src-git oldpackages http://git.openwrt.org/packages.git
 src-link argon package/feeds/luci/luci-theme-argon/
+src-link zyxel_custom_package package/utils/zyxel-t56-wireless-scripts-wifi-button
