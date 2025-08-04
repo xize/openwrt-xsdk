@@ -5,4 +5,6 @@ src-git telephony https://git.openwrt.org/feed/telephony.git
 src-git video https://github.com/openwrt/video.git
 #src-git targets https://github.com/openwrt/targets.git
 #src-git oldpackages http://git.openwrt.org/packages.git
-#src-link custom /usr/src/openwrt/custom-feed
+src-link argon_luci package/feeds/luci/luci-theme-argon
+src-link argon_config package/feeds/luci/luci-app-argon-config
+src-link zyxel_custom_package package/utils/zyxel-t56-wireless-scripts-wifi-button
