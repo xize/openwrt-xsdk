@@ -2,9 +2,6 @@ CONFIG_TARGET_mediatek=y
 CONFIG_TARGET_mediatek_filogic=y
 CONFIG_TARGET_mediatek_filogic_DEVICE_glinet_gl-mt6000=y
 CONFIG_BIND_ENABLE_DOH=y
-# CONFIG_FEED_argon_config is not set
-# CONFIG_FEED_argon_luci is not set
-# CONFIG_FEED_zyxel_custom_package is not set
 CONFIG_GENSIO_PTHREADS=y
 CONFIG_HTOP_LMSENSORS=y
 CONFIG_IMAGEOPT=y
