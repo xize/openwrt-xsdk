@@ -1,11 +1,11 @@
 [submodule "package/feeds/luci/luci-theme-argon"]
-	path = package/feeds/luci/luci-theme-argon
+	path = package/luci-theme-argon
 	url = https://github.com/jerrykuku/luci-theme-argon
 [submodule "package/feeds/luci/luci-app-argon-config"]
-	path = package/feeds/luci/luci-app-argon-config
+	path = package/luci-app-argon-config
 	url = https://github.com/jerrykuku/luci-app-argon-config
 [submodule "package/utils/zyxel-t56-wireless-scripts-wifi-button"]
-	path = package/utils/zyxel-t56-wireless-scripts-wifi-button
+	path = package/zyxel-t56-wireless-scripts-wifi-button
 	url = https://github.com/xize/zyxel-t56-wireless-scripts-wifi-button
 [submodule "xsdk-uci-defaults"]
 	path = xsdk-uci-defaults
