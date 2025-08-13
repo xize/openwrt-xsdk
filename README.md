@@ -50,6 +50,9 @@ cp -r openwrt-flint2-testing/files files/
 rm -rf openwrt-flint2-testing
 # end factory configuration placement.
 
+./scripts/feeds update -a
+./scripts/feeds install -a
+
 # to avoid dupes in the .config, we delete .config with the package metadata and use the clean one from pesa1234's repo then we add our own packages on top of these.
 [ -e ".config" ] && rm .config
 wget https://raw.githubusercontent.com/pesa1234/MT6000_cust_build/refs/heads/main/config_file/.config
@@ -74,8 +77,6 @@ echo "CONFIG_PACKAGE_luci-mod-dashboard=y" >> .config
 echo "CONFIG_PACKAGE_libcurl=y" >> .config
 echo "CONFIG_PACKAGE_drill=y" >> .config
 # end adding our own packages to pesa1234 original package list.
-./scripts/feeds update -a
-./scripts/feeds install -a
 make defconfig
 make -r -j4
 ```
