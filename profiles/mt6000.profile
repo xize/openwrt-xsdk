@@ -135,6 +135,7 @@ CONFIG_PACKAGE_luci-app-banip=y
 CONFIG_PACKAGE_luci-app-ddns=y
 CONFIG_PACKAGE_luci-app-firewall=y
 CONFIG_PACKAGE_luci-app-irqbalance=y
+CONFIG_PACKAGE_luci-app-l2-isolation=y
 CONFIG_PACKAGE_luci-app-nextdns=y
 CONFIG_PACKAGE_luci-app-package-manager=y
 CONFIG_PACKAGE_luci-app-pbr=y
