@@ -5,3 +5,6 @@
 [submodule "package/zyxel-t56-wireless-scripts-wifi-button"]
 	path = package/zyxel-t56-wireless-scripts-wifi-button
 	url = https://github.com/xize/zyxel-t56-wireless-scripts-wifi-button
+[submodule "package/feeds/packages/l2-isolation"]
+	path = package/feeds/packages/l2-isolation
+	url = https://github.com/xize/l2-isolation
