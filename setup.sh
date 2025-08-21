@@ -4,7 +4,7 @@ if [ "$1" = "skip" ];
 then
   echo "bypassing interraction for luci git submodules ;-)"
   git config --global submodule.recurse true
-  git submodule update --init --recursive
+  git submodule update --remote --init --recursive
    
   if [ "$2" = "dumbap" ];
   then
@@ -37,7 +37,7 @@ else
 fi
 
 echo "ensure, all git module feeds are setup."
-git submodule update --init --recursive
+git submodule update --remote --init --recursive
 
 if [ "$1" = "dumbap" ];
 then
