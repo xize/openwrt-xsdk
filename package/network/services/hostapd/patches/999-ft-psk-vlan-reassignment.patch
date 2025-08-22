@@ -23,7 +23,7 @@
 +			for (psk = hapd->conf->ssid.wpa_psk; psk; psk = psk->next) {
 +				if (os_memcmp(pmk, psk->psk, PMK_LEN) == 0) {
 +					if (psk->vlan_id && psk->vlan_id != sta->vlan_id) {
-+						wpa_printf(MSG_DEBUG,
++						wpa_printf(MSG_INFO,
 +							   "FT: PSK VLAN reassignment " MACSTR " %d->%d",
 +							   MAC2STR(sta->addr),
 +							   sta->vlan_id, psk->vlan_id);
