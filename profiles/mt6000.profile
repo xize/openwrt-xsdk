@@ -143,7 +143,6 @@ CONFIG_PACKAGE_luci-app-firewall=y
 CONFIG_PACKAGE_luci-app-irqbalance=y
 CONFIG_PACKAGE_luci-app-l2-isolation=y
 CONFIG_PACKAGE_luci-app-nextdns=y
-CONFIG_PACKAGE_luci-app-openclash=y
 CONFIG_PACKAGE_luci-app-package-manager=y
 CONFIG_PACKAGE_luci-app-pbr=y
 CONFIG_PACKAGE_luci-app-sqm=y
