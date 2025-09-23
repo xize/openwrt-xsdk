@@ -1,4 +1,5 @@
-src-git packages https://git.openwrt.org/feed/packages.git
+#src-git packages https://git.openwrt.org/feed/packages.git
+src-git packages https://github.com/xize/packages.git
 #src-git luci https://git.openwrt.org/project/luci.git
 src-git luci https://github.com/xize/luci
 src-git routing https://git.openwrt.org/feed/routing.git
