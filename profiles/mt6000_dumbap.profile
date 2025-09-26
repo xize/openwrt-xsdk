@@ -32,6 +32,7 @@ CONFIG_PACKAGE_ebtables-nft=y
 CONFIG_PACKAGE_ip-bridge=y
 CONFIG_PACKAGE_ip-tiny=y
 CONFIG_PACKAGE_iperf3-ssl=y
+CONFIG_PACKAGE_iwinfo=y
 CONFIG_PACKAGE_kmod-crypto-kpp=y
 CONFIG_PACKAGE_kmod-crypto-lib-chacha20=y
 CONFIG_PACKAGE_kmod-crypto-lib-chacha20poly1305=y
@@ -59,6 +60,8 @@ CONFIG_PACKAGE_libelf=y
 CONFIG_PACKAGE_libiptext=y
 CONFIG_PACKAGE_libiptext-nft=y
 CONFIG_PACKAGE_libiptext6=y
+CONFIG_PACKAGE_libiwinfo=y
+CONFIG_PACKAGE_libiwinfo-data=y
 CONFIG_PACKAGE_liblua=y
 CONFIG_PACKAGE_liblucihttp=y
 CONFIG_PACKAGE_liblucihttp-lua=y
@@ -129,5 +132,6 @@ CONFIG_VERSION_NUMBER=""
 CONFIG_VERSION_PRODUCT=""
 CONFIG_VERSION_REPO="https://downloads.openwrt.org/snapshots"
 CONFIG_VERSION_SUPPORT_URL=""
+# CONFIG_WIFI_SCRIPTS_UCODE is not set
 # CONFIG_VERSION_CODE_FILENAMES is not set
 # CONFIG_VERSION_FILENAMES is not set
