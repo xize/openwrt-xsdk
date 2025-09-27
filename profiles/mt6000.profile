@@ -172,6 +172,7 @@ CONFIG_PACKAGE_luci-proto-vxlan=y
 CONFIG_PACKAGE_luci-proto-wireguard=y
 CONFIG_PACKAGE_luci-ssl=y
 CONFIG_PACKAGE_luci-theme-argon=y
+CONFIG_PACKAGE_luci-theme-aurora=y
 CONFIG_PACKAGE_luci-theme-bootstrap=y
 CONFIG_PACKAGE_nextdns=y
 CONFIG_PACKAGE_pbr=y
