@@ -14,6 +14,7 @@ then
    git pull origin dumbap --rebase=false
    rm -rf ../files
    cp -rf files ../files
+   chmod -R 755 ../files
   else
    cd xsdk-uci-defaults
    git checkout main --force
@@ -21,6 +22,7 @@ then
    git pull origin main --rebase=false
    rm -rf ../files
    cp -rf files ../files
+   chmod -R 755 ../files
   fi
   exit 0
 fi
