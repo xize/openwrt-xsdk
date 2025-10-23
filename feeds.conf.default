@@ -7,4 +7,4 @@ src-git telephony https://git.openwrt.org/feed/telephony.git
 src-git video https://github.com/openwrt/video.git
 #src-git targets https://github.com/openwrt/targets.git
 #src-git oldpackages http://git.openwrt.org/packages.git
-src-git amnezia https://github.com/amnezia-vpn/amneziawg-openwrt
+src-git amnezia https://github.com/xize/amneziawg-openwrt
