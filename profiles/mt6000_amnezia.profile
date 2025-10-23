@@ -94,7 +94,6 @@ CONFIG_PACKAGE_kmod-tun=y
 CONFIG_PACKAGE_kmod-udptunnel4=y
 CONFIG_PACKAGE_kmod-udptunnel6=y
 CONFIG_PACKAGE_kmod-vxlan=y
-CONFIG_PACKAGE_kmod-wireguard=y
 CONFIG_PACKAGE_l2-isolation=y
 CONFIG_PACKAGE_libatomic=y
 CONFIG_PACKAGE_libavahi-client=y
@@ -215,7 +214,6 @@ CONFIG_PACKAGE_uhttpd-mod-ubus=y
 CONFIG_PACKAGE_unzip=y
 CONFIG_PACKAGE_vxlan=y
 CONFIG_PACKAGE_wget-ssl=y
-CONFIG_PACKAGE_wireguard-tools=y
 # CONFIG_PACKAGE_wpad-basic-mbedtls is not set
 CONFIG_PACKAGE_wpad-openssl=y
 CONFIG_PACKAGE_xtables-nft=y
