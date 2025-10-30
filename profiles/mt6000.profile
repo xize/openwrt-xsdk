@@ -66,6 +66,7 @@ CONFIG_PACKAGE_iptables-mod-ipopt=y
 CONFIG_PACKAGE_iptables-nft=y
 CONFIG_PACKAGE_irqbalance=y
 CONFIG_PACKAGE_iwinfo=y
+CONFIG_PACKAGE_kmod-amneziawg=y
 CONFIG_PACKAGE_kmod-crypto-kpp=y
 CONFIG_PACKAGE_kmod-crypto-lib-chacha20=y
 CONFIG_PACKAGE_kmod-crypto-lib-chacha20poly1305=y
