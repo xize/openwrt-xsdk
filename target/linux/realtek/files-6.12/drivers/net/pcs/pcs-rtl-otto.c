@@ -10,6 +10,7 @@
 #include <linux/phylink.h>
 #include <linux/regmap.h>
 
+#define RTPCS_SDS_CNT				14
 #define RTPCS_PORT_CNT				57
 
 #define RTPCS_SPEED_10				0
@@ -100,6 +101,8 @@ struct rtpcs_ctrl {
 	struct mii_bus *bus;
 	const struct rtpcs_config *cfg;
 	struct rtpcs_link *link[RTPCS_PORT_CNT];
+	bool rx_pol_inv[RTPCS_SDS_CNT];
+	bool tx_pol_inv[RTPCS_SDS_CNT];
 	struct mutex lock;
 };
 
@@ -209,6 +212,27 @@ static struct rtpcs_link *rtpcs_phylink_pcs_to_link(struct phylink_pcs *pcs)
 }
 
 /* Variant-specific functions */
+
+/* RTL93XX */
+
+static int rtpcs_93xx_sds_set_polarity(struct rtpcs_ctrl *ctrl, u32 sds,
+				       bool tx_inv, bool rx_inv)
+{
+	u8 rx_val = rx_inv ? 1 : 0;
+	u8 tx_val = tx_inv ? 1 : 0;
+	u32 val;
+	int ret;
+
+	/* 10GR */
+	val = (tx_val << 1) | rx_val;
+	ret = rtpcs_sds_write_bits(ctrl, sds, 0x6, 0x2, 14, 13, val);
+	if (ret)
+		return ret;
+
+	/* 1G */
+	val = (rx_val << 1) | tx_val;
+	return rtpcs_sds_write_bits(ctrl, sds, 0x0, 0x0, 9, 8, val);
+}
 
 /* RTL930X */
 
@@ -410,6 +434,26 @@ static void rtpcs_930x_sds_set_power(struct rtpcs_ctrl *ctrl, int sds, bool on)
 	rtpcs_sds_write_bits(ctrl, sds, 0x20, 0x00, 5, 4, rx_enable);
 }
 
+static void rtpcs_930x_sds_reconfigure_pll(struct rtpcs_ctrl *ctrl, int sds, int pll)
+{
+	int mode, tmp, speed;
+
+	mode = rtpcs_930x_sds_get_internal_mode(ctrl, sds);
+	rtpcs_930x_sds_get_pll_data(ctrl, sds, &tmp, &speed);
+
+	rtpcs_930x_sds_set_power(ctrl, sds, false);
+	rtpcs_930x_sds_set_internal_mode(ctrl, sds, RTL930X_SDS_OFF);
+
+	rtpcs_930x_sds_set_pll_data(ctrl, sds, pll, speed);
+	rtpcs_930x_sds_reset_cmu(ctrl, sds);
+
+	rtpcs_930x_sds_set_internal_mode(ctrl, sds, mode);
+	if (rtpcs_930x_sds_wait_clock_ready(ctrl, sds))
+		pr_err("%s: SDS %d could not sync clock\n", __func__, sds);
+
+	rtpcs_930x_sds_set_power(ctrl, sds, true);
+}
+
 static int rtpcs_930x_sds_config_pll(struct rtpcs_ctrl *ctrl, int sds,
 				     phy_interface_t interface)
 {
@@ -429,6 +473,11 @@ static int rtpcs_930x_sds_config_pll(struct rtpcs_ctrl *ctrl, int sds,
 	 * - Use ring PLL for slow 1G speeds
 	 * - Use LC PLL for fast 10G speeds
 	 * - For 2.5G prefer ring over LC PLL
+	 *
+	 * However, when we want to configure 10G speed while the other SerDes is already using
+	 * the LC PLL for a slower speed, there is no way to avoid reconfiguration. Note that
+	 * this can even happen when the other SerDes is not actually in use, because changing
+	 * the state of a SerDes back to RTL930X_SDS_OFF is not (yet) implemented.
 	 */
 
 	neighbor_mode = rtpcs_930x_sds_get_internal_mode(ctrl, neighbor);
@@ -451,9 +500,12 @@ static int rtpcs_930x_sds_config_pll(struct rtpcs_ctrl *ctrl, int sds,
 		pll = neighbor_pll;
 	} else if (neighbor_pll == RTSDS_930X_PLL_RING)
 		pll = RTSDS_930X_PLL_LC;
-	else if (speed == RTSDS_930X_PLL_10000)
-		return -ENOTSUPP; /* caller wants 10G but only ring PLL available */
-	else
+	else if (speed == RTSDS_930X_PLL_10000) {
+		pr_info("%s: SDS %d needs LC PLL, reconfigure SDS %d to use ring PLL\n",
+			__func__, sds, neighbor);
+		rtpcs_930x_sds_reconfigure_pll(ctrl, neighbor, RTSDS_930X_PLL_RING);
+		pll = RTSDS_930X_PLL_LC;
+	} else
 		pll = RTSDS_930X_PLL_RING;
 
 	rtpcs_930x_sds_set_pll_data(ctrl, sds, pll, speed);
@@ -664,32 +716,6 @@ static int rtpcs_930x_sds_clock_wait(struct rtpcs_ctrl *ctrl, int timeout)
 	} while (jiffies < start + (HZ / 1000) * timeout);
 
 	return 1;
-}
-
-static void rtpcs_930x_sds_mac_link_config(struct rtpcs_ctrl *ctrl, int sds,
-					   bool tx_normal, bool rx_normal)
-{
-	u32 v10, v1;
-
-	v10 = rtpcs_sds_read(ctrl, sds, 6, 2); /* 10GBit, page 6, reg 2 */
-	v1 = rtpcs_sds_read(ctrl, sds, 0, 0); /* 1GBit, page 0, reg 0 */
-	pr_info("%s: registers before %08x %08x\n", __func__, v10, v1);
-
-	v10 &= ~(BIT(13) | BIT(14));
-	v1 &= ~(BIT(8) | BIT(9));
-
-	v10 |= rx_normal ? 0 : BIT(13);
-	v1 |= rx_normal ? 0 : BIT(9);
-
-	v10 |= tx_normal ? 0 : BIT(14);
-	v1 |= tx_normal ? 0 : BIT(8);
-
-	rtpcs_sds_write(ctrl, sds, 6, 2, v10);
-	rtpcs_sds_write(ctrl, sds, 0, 0, v1);
-
-	v10 = rtpcs_sds_read(ctrl, sds, 6, 2);
-	v1 = rtpcs_sds_read(ctrl, sds, 0, 0);
-	pr_info("%s: registers after %08x %08x\n", __func__, v10, v1);
 }
 
 __attribute__((unused))
@@ -1890,8 +1916,9 @@ static int rtpcs_930x_setup_serdes(struct rtpcs_ctrl *ctrl, int sds,
 	/* ----> dal_longan_sds_mode_set */
 	pr_info("%s: Configuring RTL9300 SERDES %d\n", __func__, sds);
 
-	/* Configure link to MAC */
-	rtpcs_930x_sds_mac_link_config(ctrl, sds, true, true);	/* MAC Construct */
+	/* Set SDS polarity */
+	rtpcs_93xx_sds_set_polarity(ctrl, sds, ctrl->tx_pol_inv[sds],
+				    ctrl->rx_pol_inv[sds]);
 
 	/* Enable SDS in desired mode */
 	rtpcs_930x_sds_mode_set(ctrl, sds, phy_mode);
@@ -2470,6 +2497,9 @@ static int rtpcs_931x_setup_serdes(struct rtpcs_ctrl *ctrl, int sds,
 		}
 	}
 
+	rtpcs_93xx_sds_set_polarity(ctrl, sds, ctrl->tx_pol_inv[sds],
+				    ctrl->rx_pol_inv[sds]);
+
 	val = ori & ~BIT(sds);
 	regmap_write(ctrl->map, RTL931X_PS_SERDES_OFF_MODE_CTRL_ADDR, val);
 	regmap_read(ctrl->map, RTL931X_PS_SERDES_OFF_MODE_CTRL_ADDR, &val);
@@ -2704,7 +2734,10 @@ static int rtpcs_probe(struct platform_device *pdev)
 {
 	struct device_node *np = pdev->dev.of_node;
 	struct device *dev = &pdev->dev;
+	struct device_node *child;
 	struct rtpcs_ctrl *ctrl;
+	u32 sds;
+	int ret;
 
 	ctrl = devm_kzalloc(dev, sizeof(*ctrl), GFP_KERNEL);
 	if (!ctrl)
@@ -2721,6 +2754,18 @@ static int rtpcs_probe(struct platform_device *pdev)
 	ctrl->bus = rtpcs_probe_serdes_bus(ctrl);
 	if (IS_ERR(ctrl->bus))
 		return PTR_ERR(ctrl->bus);
+
+	for_each_child_of_node(dev->of_node, child) {
+		ret = of_property_read_u32(child, "reg", &sds);
+		if (ret)
+			return ret;
+		if (sds >= RTPCS_SDS_CNT)
+			return -EINVAL;
+
+		ctrl->rx_pol_inv[sds] = of_property_read_bool(child, "realtek,pnswap-rx");
+		ctrl->tx_pol_inv[sds] = of_property_read_bool(child, "realtek,pnswap-tx");
+	}
+
 	/*
 	 * rtpcs_create() relies on that fact that data is attached to the platform device to
 	 * determine if the driver is ready. Do this after everything is initialized properly.
