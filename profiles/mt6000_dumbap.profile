@@ -25,6 +25,7 @@ CONFIG_OPENSSL_WITH_SEED=y
 CONFIG_OPENSSL_WITH_SRP=y
 CONFIG_OPENSSL_WITH_TLS13=y
 CONFIG_OPENSSL_WITH_WHIRLPOOL=y
+CONFIG_PACKAGE_attendedsysupgrade-common=y
 CONFIG_PACKAGE_bridger=y
 CONFIG_PACKAGE_cgi-io=y
 CONFIG_PACKAGE_curl=y
@@ -75,6 +76,7 @@ CONFIG_PACKAGE_libubus-lua=y
 CONFIG_PACKAGE_libxtables=y
 CONFIG_PACKAGE_lua=y
 CONFIG_PACKAGE_luci=y
+CONFIG_PACKAGE_luci-app-attendedsysupgrade=y
 CONFIG_PACKAGE_luci-app-firewall=y
 CONFIG_PACKAGE_luci-app-l2-isolation=y
 CONFIG_PACKAGE_luci-app-package-manager=y
@@ -104,6 +106,7 @@ CONFIG_PACKAGE_rpcd=y
 CONFIG_PACKAGE_rpcd-mod-file=y
 CONFIG_PACKAGE_rpcd-mod-iwinfo=y
 CONFIG_PACKAGE_rpcd-mod-luci=y
+CONFIG_PACKAGE_rpcd-mod-rpcsys=y
 CONFIG_PACKAGE_rpcd-mod-rrdns=y
 CONFIG_PACKAGE_rpcd-mod-ucode=y
 CONFIG_PACKAGE_tcpdump=y
@@ -132,6 +135,5 @@ CONFIG_VERSION_NUMBER=""
 CONFIG_VERSION_PRODUCT=""
 CONFIG_VERSION_REPO="https://downloads.openwrt.org/snapshots"
 CONFIG_VERSION_SUPPORT_URL=""
-# CONFIG_WIFI_SCRIPTS_UCODE is not set
 # CONFIG_VERSION_CODE_FILENAMES is not set
 # CONFIG_VERSION_FILENAMES is not set
