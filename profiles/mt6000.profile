@@ -225,5 +225,5 @@ CONFIG_PACKAGE_wireguard-tools=y
 # CONFIG_PACKAGE_wpad-basic-mbedtls is not set
 CONFIG_PACKAGE_wpad-openssl=y
 CONFIG_PACKAGE_xtables-nft=y
+CONFIG_PCRE2_JIT_ENABLED=y
 CONFIG_RUBY_ENABLE_YJIT=y
-# CONFIG_WIFI_SCRIPTS_UCODE is not set
