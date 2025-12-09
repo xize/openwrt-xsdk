@@ -8,7 +8,7 @@
  #include "pmksa_cache_auth.h"
  #include "wmm.h"
  #include "ap_list.h"
-@@ -466,6 +467,29 @@ static void handle_auth_ft_finish(void *
+@@ -466,6 +467,36 @@ static void handle_auth_ft_finish(void *ctx, const u8 *dst,
  	if (status != WLAN_STATUS_SUCCESS)
  		return;
 
@@ -23,18 +23,25 @@
 +			for (psk = hapd->conf->ssid.wpa_psk; psk; psk = psk->next) {
 +				if (os_memcmp(pmk, psk->psk, PMK_LEN) == 0) {
 +					if (psk->vlan_id && psk->vlan_id != sta->vlan_id) {
++						struct vlan_description vlan_desc = { .notempty = 1, .untagged =
++						psk->vlan_id };
++
 +						wpa_printf(MSG_INFO,
 +							   "FT: PSK VLAN reassignment " MACSTR " %d->%d",
-+							   MAC2STR(sta->addr),
-+							   sta->vlan_id, psk->vlan_id);
-+						sta->vlan_id = psk->vlan_id;
-+						ap_sta_set_vlan(hapd, sta, sta->vlan_desc);
++							   MAC2STR(sta->addr), sta->vlan_id, psk->vlan_id);
++
++						if (ap_sta_set_vlan(hapd, sta, &vlan_desc) < 0) {
++							wpa_printf(MSG_INFO,
++								   "FT: PSK VLAN reassignment failed for " MACSTR " (%d->%d)",
++								   MAC2STR(sta->addr), sta->vlan_id, psk->vlan_id);
++						}
 +					}
 +					break;
 +				}
 +			}
 +		}
 +	}
++
  	hostapd_logger(hapd, dst, HOSTAPD_MODULE_IEEE80211,
  		       HOSTAPD_LEVEL_DEBUG, "authentication OK (FT)");
  	sta->flags |= WLAN_STA_AUTH;
