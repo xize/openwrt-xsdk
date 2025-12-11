@@ -2,9 +2,14 @@
 
 This is a more personalized fork of [OpenWrt](https://github.com/openwrt/openwrt) with pre-configuration builded in, please assist checking /files/etc/uci-defaults since these images are not feasible for all people, it's for better ease of use for myself to make testing alot more robust.
 
-This version is for the Devolo with powerline drivers taken from this thread: https://forum.openwrt.org/t/installing-openwrt-on-devolo-magic-2-wifi-next/129725/46
+This version is for the Devolo with powerline drivers taken from this thread:
+
+https://forum.openwrt.org/t/installing-openwrt-on-devolo-magic-2-wifi-next/129725/46
+
+
 
 and repo https://github.com/jschwartzenberg/openwrt/tree/devolo-magic
+
 full credits of the extract script belongs to this author jschwartzenberg :).
 
 
