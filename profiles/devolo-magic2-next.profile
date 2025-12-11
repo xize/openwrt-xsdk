@@ -4,11 +4,23 @@ CONFIG_TARGET_ipq40xx_generic_DEVICE_devolo_magic-2-wifi-next=y
 CONFIG_IMAGEOPT=y
 # CONFIG_PACKAGE_apk-mbedtls is not set
 CONFIG_PACKAGE_cgi-io=y
+CONFIG_PACKAGE_ebtables-nft=y
+CONFIG_PACKAGE_ethtool-full=y
 CONFIG_PACKAGE_flock=y
+CONFIG_PACKAGE_kmod-ebtables=y
+CONFIG_PACKAGE_kmod-ipt-core=y
+CONFIG_PACKAGE_kmod-nf-ipt=y
+CONFIG_PACKAGE_kmod-nft-bridge=y
+CONFIG_PACKAGE_kmod-nft-compat=y
+CONFIG_PACKAGE_libcap=y
+CONFIG_PACKAGE_libiptext=y
+CONFIG_PACKAGE_libiptext-nft=y
+CONFIG_PACKAGE_libiptext6=y
 CONFIG_PACKAGE_liblucihttp=y
 CONFIG_PACKAGE_liblucihttp-ucode=y
 CONFIG_PACKAGE_libpthread=y
 CONFIG_PACKAGE_librt=y
+CONFIG_PACKAGE_libxtables=y
 CONFIG_PACKAGE_luci-base=y
 CONFIG_PACKAGE_luci-theme-openwrt=y
 CONFIG_PACKAGE_opkg=y
@@ -19,6 +31,7 @@ CONFIG_PACKAGE_rpcd-mod-ucode=y
 CONFIG_PACKAGE_ucode-mod-html=y
 CONFIG_PACKAGE_ucode-mod-log=y
 CONFIG_PACKAGE_ucode-mod-math=y
+CONFIG_PACKAGE_xtables-nft=y
 # CONFIG_PACKAGE_zlib is not set
 # CONFIG_PER_FEED_REPO is not set
 # CONFIG_USE_APK is not set
