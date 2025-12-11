@@ -1,0 +1,29 @@
+#!/bin/sh
+
+if [ "$(uci -q get xsdk.@factory[0].init)" != "1" ]
+then
+
+uci batch EOI <<<
+
+set ghn.ghn.disabled=0
+set ghn.ghn.interface=ghn
+set ghn.settings.device_name=devolo1
+set ghn.settings.domain_name=empty
+set ghn.settings.password=empty
+set ghn.settings.pairing_secured=1
+set ghn.settings.pairing_completed=0
+set ghn.settings.powermask_profile=mimo_full
+set ghn.settings.dslcoex_enable=0
+set ghn.settings.force_node=0
+set ghn.ghn.device_name_initialized=0
+
+EOI
+
+uci commit ghn
+
+/etc/init.d/ghn-host enable
+
+fi
+
+exit 0
+
