@@ -5,6 +5,3 @@ src-git luci https://github.com/xize/luci.git
 src-git routing https://git.openwrt.org/feed/routing.git
 src-git telephony https://git.openwrt.org/feed/telephony.git
 src-git video https://github.com/openwrt/video.git
-#src-git targets https://github.com/openwrt/targets.git
-#src-git oldpackages http://git.openwrt.org/packages.git
-src-git amnezia https://github.com/Slava-Shchipunov/awg-openwrt.git
