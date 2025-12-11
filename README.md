@@ -4,10 +4,11 @@ This is a more personalized fork of [OpenWrt](https://github.com/openwrt/openwrt
 
 This version is for the Devolo with powerline drivers taken from this thread: https://forum.openwrt.org/t/installing-openwrt-on-devolo-magic-2-wifi-next/129725/46
 
-and repo https://github.com/jschwartzenberg/openwrt/tree/devolo-magic full credits of the extract script belongs to this author :).
+and repo https://github.com/jschwartzenberg/openwrt/tree/devolo-magic
+full credits of the extract script belongs to this author jschwartzenberg :).
 
 
-typical jenkins:
+typical jenkins config:
 
 ```
 ./setup.sh # downloads the original firmware, or keeps it scoped, for a new version delete devolo.bin and ghn folder.)
@@ -21,11 +22,11 @@ make -j8
 ```
 
 make however sure that patchelf, and binwalk is installed in apt.
-and also make sure that when archiving the artifacts to also add folder ghn.
+and also make sure that when archiving the artifacts to also add folder ghn in jenkins aswell.
 
-I decided not to add this to /rom because I have no control over the firmware and this target has only 32mb flash!.
+I decided not to add this to /rom because I have no control over the firmware and this target has only 32mb flash!, people have to manually install the ipkgs, there is no possibility to have this platform run APK.
 
-Currently the config is pretty much default, only the ghn interface gets added, but will be changed into a dumbap one.
+Currently the config is pretty much default, only the ghn interface gets added, but will be in the future changed into a dumbap one but at present I don't have this device with me.
 
 
 [for OpenWrt direct readme go here](README_OpenWrt.md)
