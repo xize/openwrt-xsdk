@@ -1,0 +1,48 @@
+#!/bin/sh
+if [ "$(uci -q get xsdk.@factory[0].init)" != "1" ];
+then
+	# remove lan1 (port 2) from bridge vlan.
+	uci set network.@device[0].bridge_empty='1'
+
+	# create dumbap styled router.
+	uci set network.lan.proto='none'
+	uci set network.lan.device='br-lan.1'
+
+	# create management network.
+	uci set network.management=interface
+	uci set network.management.proto='static'
+	uci set network.management.device='br-lan.2'
+	uci set network.management.ipaddr='10.37.23.1'
+	uci set network.management.netmask='255.255.255.0'
+	uci set network.management.defaultroute='0'
+	uci set network.management.delegate='0'
+
+	# create vlans.
+	uci add network bridge-vlan
+	uci set network.@bridge-vlan[-1].device='br-lan'
+	uci set network.@bridge-vlan[-1].vlan='1'
+	uci add_list network.@bridge-vlan[-1].ports='ghn'
+	uci add_list network.@bridge-vlan[-1].ports='lan1:u*'
+	uci add_list network.@bridge-vlan[-1].ports='lan2:u*'
+	
+	uci add network bridge-vlan
+	uci set network.@bridge-vlan[-1].device='br-lan'
+	uci set network.@bridge-vlan[-1].vlan='2'
+	uci add_list network.@bridge-vlan[-1].ports='lan1:t'
+	uci add_list network.@bridge-vlan[-1].ports='lan2:t'
+
+	uci commit network
+
+	uci set dhcp.management=dhcp
+	uci set dhcp.management.interface='management'
+	uci set dhcp.management.start='2'
+	uci set dhcp.management.limit='150'
+	uci set dhcp.management.leasetime='12h'
+	uci set dhcp.management.dhcpv4='server'
+
+	uci commit dhcp
+	
+fi
+
+exit 0
+
