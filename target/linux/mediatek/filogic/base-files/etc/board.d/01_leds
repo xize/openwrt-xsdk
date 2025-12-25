@@ -21,6 +21,7 @@ acer,predator-w6x-ubootmod)
 	ucidef_set_led_netdev "wan" "wan" "rgb:status" "eth1"
 	;;
 asus,rt-ax52|\
+asus,rt-ax57m|\
 snr,snr-cpe-ax2)
 	ucidef_set_led_netdev "wan" "wan" "blue:wan" "wan" "link tx rx"
 	;;
@@ -247,6 +248,9 @@ teltonika,rutc50)
 	;;
 totolink,x6000r)
 	ucidef_set_led_netdev "wan" "wan" "green:wan" "wan" "link tx rx"
+	;;
+tplink,archer-ax80-v1-eu)
+	ucidef_set_led_netdev "lan" "LAN" "white:lan" "br-lan" "link tx rx"
 	;;
 tplink,be450)
 	ucidef_set_led_netdev "br-lan" "lan" "blue:lan" "br-lan" "link tx rx"

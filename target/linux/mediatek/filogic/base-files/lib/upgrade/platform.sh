@@ -141,6 +141,7 @@ platform_do_upgrade() {
 		emmc_do_upgrade "$1"
 		;;
 	asus,rt-ax52|\
+	asus,rt-ax57m|\
 	asus,rt-ax59u|\
 	asus,tuf-ax4200|\
 	asus,tuf-ax4200q|\
@@ -189,6 +190,7 @@ platform_do_upgrade() {
 	mercusys,mr85x|\
 	mercusys,mr90x-v1|\
 	tplink,archer-ax80-v1|\
+	tplink,archer-ax80-v1-eu|\
 	tplink,be450|\
 	tplink,re6000xd)
 		CI_UBIPART="ubi0"
@@ -368,6 +370,7 @@ platform_pre_upgrade() {
 
 	case "$board" in
 	asus,rt-ax52|\
+	asus,rt-ax57m|\
 	asus,rt-ax59u|\
 	asus,tuf-ax4200|\
 	asus,tuf-ax4200q|\
