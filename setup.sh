@@ -5,7 +5,11 @@ echo "bypassing interraction for luci git submodules ;-)"
 	if [ "$1" = "dumbap" ];
 	then
 		rm -rf files
-		git clone https://github.com/xize/xsdk-uci-defaults files
+		rm -rf xsdk-uci-defaults
+		git clone https://github.com/xize/xsdk-uci-defaults
+		cd xsdk-uci-defaults
+		cp files ../
+		cd ..
 		cd files
 		git fetch origin
 		git checkout dumbap --force
@@ -13,7 +17,10 @@ echo "bypassing interraction for luci git submodules ;-)"
 		chmod -R 755 files
 	else
 		rm -rf files
-		git clone https://github.com/xize/xsdk-uci-defaults files
+		rm -rf xsdk-uci-defaults
+		git clone https://github.com/xize/xsdk-uci-defaults
+		cd xsdk-uci-defaults
+		cp files ../
 		chmod -R 755 files
 	fi
 exit 0
