@@ -8,7 +8,7 @@ echo "bypassing interraction for luci git submodules ;-)"
 		rm -rf xsdk-uci-defaults
 		git clone https://github.com/xize/xsdk-uci-defaults
 		cd xsdk-uci-defaults
-		cp files ../
+		cp -rf files ../
 		cd ..
 		cd files
 		git fetch origin
@@ -20,7 +20,7 @@ echo "bypassing interraction for luci git submodules ;-)"
 		rm -rf xsdk-uci-defaults
 		git clone https://github.com/xize/xsdk-uci-defaults
 		cd xsdk-uci-defaults
-		cp files ../
+		cp -rf files ../
 		chmod -R 755 files
 	fi
 exit 0
