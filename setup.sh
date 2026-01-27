@@ -11,7 +11,7 @@ echo "bypassing interraction for luci git submodules ;-)"
 		cp -rf files ../
 		cd ..
 		cd files
-		git fetch origin
+		git fetch origin dumbap
 		git checkout dumbap --force
 		cd ..
 		chmod -R 755 files
