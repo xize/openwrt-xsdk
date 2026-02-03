@@ -1,5 +1,3 @@
-ghn/
-devolo.bin
 *.o
 .DS_Store
 .*.swp
@@ -15,6 +13,7 @@ devolo.bin
 /logs
 /feeds
 /feeds.conf
+/files
 /target/linux/feeds
 /overlay
 /package/feeds
@@ -36,4 +35,3 @@ git-src
 .cproject
 .ccache
 .vscode*
-package/feeds/luci/luci-theme-argon
