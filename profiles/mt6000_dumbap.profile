@@ -76,6 +76,7 @@ CONFIG_PACKAGE_libubus-lua=y
 CONFIG_PACKAGE_libxtables=y
 CONFIG_PACKAGE_lua=y
 CONFIG_PACKAGE_luci=y
+CONFIG_PACKAGE_luci-app-wifihistory=y
 CONFIG_PACKAGE_luci-app-attendedsysupgrade=y
 CONFIG_PACKAGE_luci-app-firewall=y
 CONFIG_PACKAGE_luci-app-l2-isolation=y
