@@ -156,6 +156,7 @@ CONFIG_PACKAGE_luci-app-l2-isolation=y
 CONFIG_PACKAGE_luci-app-nextdns=y
 CONFIG_PACKAGE_luci-app-package-manager=y
 CONFIG_PACKAGE_luci-app-pbr=y
+CONFIG_PACKAGE_luci-app-wifihistory=y
 CONFIG_PACKAGE_luci-app-sqm=y
 CONFIG_PACKAGE_luci-app-tor=y
 CONFIG_PACKAGE_luci-base=y
