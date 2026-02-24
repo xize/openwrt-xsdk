@@ -37,3 +37,6 @@ git-src
 .ccache
 .vscode*
 devolo.bin
+build.log
+sha256sums
+/scripts/apk
