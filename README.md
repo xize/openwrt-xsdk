@@ -15,7 +15,7 @@ full credits of the extract script belongs to this author jschwartzenberg :).
 
 typical jenkins config:
 
-```
+```bash
 #!/bin/bash
 ./scripts/feeds clean
 ./scripts/feeds update -a
