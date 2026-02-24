@@ -13,15 +13,12 @@ then
 	else
 		echo "downloaded devolo.bin successfully."
 		echo "extracting devolo.bin to ghn."
-		./scripts/devolo-extract-ghn-packages devolo.bin ghn
+		./scripts/devolo-extract-ghn-packages ~/openwrt/devolo.bin ghn
 		#cp -rf ghn files/firmware (lets not do this).
 	fi
 else
 	echo "skip downloading devolo firmware, already found locally scoped."
 fi
-
-
-cp profiles/devolo-magic2-next.profile .config
 
 exit 0
 
