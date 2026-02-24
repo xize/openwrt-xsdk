@@ -16,14 +16,32 @@ full credits of the extract script belongs to this author jschwartzenberg :).
 typical jenkins config:
 
 ```
-./setup.sh # downloads the original firmware, or keeps it scoped, for a new version delete devolo.bin and ghn folder.)
+#!/bin/bash
+./scripts/feeds clean
 ./scripts/feeds update -a
 ./scripts/feeds install -a
-cp profiles/devolo-magic2-next.profile .config
+cp profiles/devolo-magic2-next-apk.profile .config
 make defconfig -j8
 make download -j8
 make toolchain/install
 make -j8
+
+
+# add env PATH folders, to make
+# the devolo firmware extract script work.
+x = ${PATH}
+if [ ! [ $x == *"${WORKSPACE}/staging_dir/host/bin"* ] ]; then
+ export PATH="${PATH}:/${WORKSPACE}/staging_dir/host/bin"
+fi
+
+if [ ! [ $x == *"${WORKSPACE}/bin/targets/ipq40xx/generic"* ] ]; then
+ export PATH="${PATH}:/${WORKSPACE}/bin/targets/ipq40xx/generic"
+fi
+
+./after_compile.sh # downloads the original firmware, or keeps it scoped, for a new version delete devolo.bin and ghn folder.)
+
+exit 0
+
 ```
 
 make however sure that patchelf, and binwalk is installed in apt.
