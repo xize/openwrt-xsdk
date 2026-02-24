@@ -8,7 +8,7 @@ https://forum.openwrt.org/t/installing-openwrt-on-devolo-magic-2-wifi-next/12972
 
 
 
-and repo https://github.com/jschwartzenberg/openwrt/tree/devolo-magic
+and repo https://codeberg.org/jschwart/devolo-extract-ghn-packages, [old]https://github.com/jschwartzenberg/openwrt/tree/devolo-magic
 
 full credits of the extract script belongs to this author jschwartzenberg :).
 
