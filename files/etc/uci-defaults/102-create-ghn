@@ -3,19 +3,21 @@
 if [ "$(uci -q get xsdk.@factory[0].init)" != "1" ]
 then
 
-uci batch EOI <<<
+uci batch << EOI
 
+set ghn.ghn=ghn
 set ghn.ghn.disabled=0
 set ghn.ghn.interface=ghn
-set ghn.settings.device_name=devolo1
-set ghn.settings.domain_name=empty
-set ghn.settings.password=empty
+set ghn.settings=settings
+set ghn.settings.device_name="<devicename, like: devolo-123>"
+set ghn.settings.domain_name="<domain, must match your other device(s)>"
+set ghn.settings.password="<password, must match your other device(s)>"
 set ghn.settings.pairing_secured=1
-set ghn.settings.pairing_completed=0
+set ghn.settings.pairing_completed=1
 set ghn.settings.powermask_profile=mimo_full
 set ghn.settings.dslcoex_enable=0
 set ghn.settings.force_node=0
-set ghn.ghn.device_name_initialized=0
+set ghn.ghn.device_name_initialized=1
 
 EOI
 
