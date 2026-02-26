@@ -1,16 +1,17 @@
 #!/bin/sh
-
-if [ "$(uci -q get xsdk.@factory[0].init)" != "1" ];
+if [ "$(uci -q get xsdk.@factory[0].init)" != "1" ]
 then
 
-	uci set firewall.@defaults[0].input='ACCEPT'
-	uci set firewall.@defaults[0].output='ACCEPT'
-	uci set firewall.@defaults[0].forward='ACCEPT'
-	uci del firewall.@zone[0]
-	uci del firewall.@zone[1]
+    uci del firewall.@zone[1]
+    uci set firewall.@defaults[0].input='ACCEPT'
+    uci set firewall.@defaults[0].output='ACCEPT'
+    uci set firewall.@defaults[0].forward='ACCEPT'
 
-	uci commit firewall
+    uci del network.wan
+    uci del network.wan6
 
+    uci commit network
+    uci commit firewall
 fi
 
 exit 0

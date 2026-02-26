@@ -7,6 +7,8 @@ then
 	# create dumbap styled router.
 	uci set network.lan.proto='none'
 	uci set network.lan.device='br-lan.1'
+	uci del network.lan.ip6assign
+	uci set network.lan.delegate='0'
 
 	# create management network.
 	uci set network.management=interface
@@ -32,6 +34,9 @@ then
 	uci add_list network.@bridge-vlan[-1].ports='lan2:t'
 
 	uci commit network
+
+	uci del dhcp.lan.ra_slaac
+	uci set dhcp.lan.ignore='1'
 
 	uci set dhcp.management=dhcp
 	uci set dhcp.management.interface='management'
