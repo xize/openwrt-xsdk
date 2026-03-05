@@ -2,6 +2,7 @@
 .DS_Store
 .*.swp
 /env
+/ghn
 /dl
 /.config
 /.config.old
@@ -13,7 +14,6 @@
 /logs
 /feeds
 /feeds.conf
-/files
 /target/linux/feeds
 /overlay
 /package/feeds
@@ -35,3 +35,7 @@ git-src
 .cproject
 .ccache
 .vscode*
+devolo.bin
+build.log
+sha256sums
+/scripts/apk

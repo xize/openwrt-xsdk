@@ -1,0 +1,1 @@
+30 5 * * * sleep 90 && touch /etc/banner && wifi

@@ -1,108 +1,55 @@
 ![OpenWrt logo](include/logo.png)
 
-OpenWrt Project is a Linux operating system targeting embedded devices. Instead
-of trying to create a single, static firmware, OpenWrt provides a fully
-writable filesystem with package management. This frees you from the
-application selection and configuration provided by the vendor and allows you
-to customize the device through the use of packages to suit any application.
-For developers, OpenWrt is the framework to build an application without having
-to build a complete firmware around it; for users this means the ability for
-full customization, to use the device in ways never envisioned.
+This is a more personalized fork of [OpenWrt](https://github.com/openwrt/openwrt) with pre-configuration builded in, please assist checking /files/etc/uci-defaults since these images are not feasible for all people, it's for better ease of use for myself to make testing alot more robust.
 
-Sunshine!
+This version is for the Devolo with powerline drivers taken from this thread:
 
-## Download
+https://forum.openwrt.org/t/installing-openwrt-on-devolo-magic-2-wifi-next/129725/46
 
-Built firmware images are available for many architectures and come with a
-package selection to be used as WiFi home router. To quickly find a factory
-image usable to migrate from a vendor stock firmware to OpenWrt, try the
-*Firmware Selector*.
 
-* [OpenWrt Firmware Selector](https://firmware-selector.openwrt.org/)
 
-If your device is supported, please follow the **Info** link to see install
-instructions or consult the support resources listed below.
+and repo https://codeberg.org/jschwart/devolo-extract-ghn-packages, [old]https://github.com/jschwartzenberg/openwrt/tree/devolo-magic
 
-## 
+full credits of the extract script belongs to this author jschwartzenberg :).
 
-An advanced user may require additional or specific package. (Toolchain, SDK, ...) For everything else than simple firmware download, try the wiki download page:
 
-* [OpenWrt Wiki Download](https://openwrt.org/downloads)
+typical jenkins config:
 
-## Development
+```bash
+#!/bin/bash
+./scripts/feeds clean
+./scripts/feeds update -a
+./scripts/feeds install -a
+cp profiles/devolo-magic2-next-apk.profile .config
+make defconfig -j8
+make download -j8
+make toolchain/install
+make -j8
 
-To build your own firmware you need a GNU/Linux, BSD or macOS system (case
-sensitive filesystem required). Cygwin is unsupported because of the lack of a
-case sensitive file system.
 
-### Requirements
+# add env PATH folders, to make
+# the devolo firmware extract script work.
+x = ${PATH}
+if [ ! [ $x == *"${WORKSPACE}/staging_dir/host/bin"* ] ]; then
+ export PATH="${PATH}:/${WORKSPACE}/staging_dir/host/bin"
+fi
 
-You need the following tools to compile OpenWrt, the package names vary between
-distributions. A complete list with distribution specific packages is found in
-the [Build System Setup](https://openwrt.org/docs/guide-developer/build-system/install-buildsystem)
-documentation.
+if [ ! [ $x == *"${WORKSPACE}/bin/targets/ipq40xx/generic"* ] ]; then
+ export PATH="${PATH}:/${WORKSPACE}/bin/targets/ipq40xx/generic"
+fi
+
+./after_compile.sh # downloads the original firmware, or keeps it scoped, for a new version delete devolo.bin and ghn folder.)
+
+exit 0
 
 ```
-binutils bzip2 diff find flex gawk gcc-6+ getopt grep install libc-dev libz-dev
-make4.1+ perl python3.7+ rsync subversion unzip which
-```
 
-### Quickstart
+make however sure that patchelf, and binwalk is installed in apt.
+and also make sure that when archiving the artifacts to also add folder ghn in jenkins aswell.
 
-1. Run `./scripts/feeds update -a` to obtain all the latest package definitions
-   defined in feeds.conf / feeds.conf.default
+I decided not to add this to /rom because I have no control over the firmware and this target has only 32mb flash!, people have to manually install the ipkgs, there is no possibility to have this platform run APK.
 
-2. Run `./scripts/feeds install -a` to install symlinks for all obtained
-   packages into package/feeds/
+Currently the config is pretty much default, only the ghn interface gets added, but will be in the future changed into a dumbap one but at present I don't have this device with me.
 
-3. Run `make menuconfig` to select your preferred configuration for the
-   toolchain, target system & firmware packages.
 
-4. Run `make` to build your firmware. This will download all sources, build the
-   cross-compile toolchain and then cross-compile the GNU/Linux kernel & all chosen
-   applications for your target system.
-
-### Related Repositories
-
-The main repository uses multiple sub-repositories to manage packages of
-different categories. All packages are installed via the OpenWrt package
-manager called `opkg`. If you're looking to develop the web interface or port
-packages to OpenWrt, please find the fitting repository below.
-
-* [LuCI Web Interface](https://github.com/openwrt/luci): Modern and modular
-  interface to control the device via a web browser.
-
-* [OpenWrt Packages](https://github.com/openwrt/packages): Community repository
-  of ported packages.
-
-* [OpenWrt Routing](https://github.com/openwrt/routing): Packages specifically
-  focused on (mesh) routing.
-
-* [OpenWrt Video](https://github.com/openwrt/video): Packages specifically
-  focused on display servers and clients (Xorg and Wayland).
-
-## Support Information
-
-For a list of supported devices see the [OpenWrt Hardware Database](https://openwrt.org/supported_devices)
-
-### Documentation
-
-* [Quick Start Guide](https://openwrt.org/docs/guide-quick-start/start)
-* [User Guide](https://openwrt.org/docs/guide-user/start)
-* [Developer Documentation](https://openwrt.org/docs/guide-developer/start)
-* [Technical Reference](https://openwrt.org/docs/techref/start)
-
-### Support Community
-
-* [Forum](https://forum.openwrt.org): For usage, projects, discussions and hardware advise.
-* [Support Chat](https://webchat.oftc.net/#openwrt): Channel `#openwrt` on **oftc.net**.
-
-### Developer Community
-
-* [Bug Reports](https://bugs.openwrt.org): Report bugs in OpenWrt
-* [Dev Mailing List](https://lists.openwrt.org/mailman/listinfo/openwrt-devel): Send patches
-* [Dev Chat](https://webchat.oftc.net/#openwrt-devel): Channel `#openwrt-devel` on **oftc.net**.
-
-## License
-
-OpenWrt is licensed under GPL-2.0
+[for OpenWrt direct readme go here](README_OpenWrt.md)

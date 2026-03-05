@@ -1,0 +1,107 @@
+#!/bin/bash
+
+# apk-build -- construct an apk from a directory (inspired by ipkg-build)
+# Julius Schwartzenberg <julius.schwartzenberg@eclipso.eu>
+
+for tool in apk
+do
+  if ! command -v ${tool} > /dev/null
+  then
+    echo "This script requires ${tool} to run!" >&2
+    exit 1
+  fi
+done
+
+if [ $# -lt 2 ]
+then
+  echo "Usage:   ${0} <pkg_directory> <destination_directory>" >&2
+  exit 1
+fi
+
+pkg_dir="$(realpath ${1})"
+dest_dir="$(realpath ${2})"
+
+if ! pushd "${pkg_dir}" > /dev/null 2>&1
+then
+  echo "Error: ${pkg_dir} does not exist!" >&2
+  exit 1
+fi
+
+CONTROL_DIRECTORY="CONTROL"
+CONTROL_FILE="${CONTROL_DIRECTORY}/control"
+
+if [[ "$(<"${CONTROL_FILE}")" =~ Package:[[:space:]]([[:print:]]+) ]]
+then
+  name="${BASH_REMATCH[1]}"
+fi
+
+if [[ "$(<"${CONTROL_FILE}")" =~ Version:[[:space:]]([[:print:]]+) ]]
+then
+  ipk_version="${BASH_REMATCH[1]}"
+  regex='[[:alpha:]][[:alpha:]]'
+  if [[ "${ipk_version}" =~ $regex ]]
+  then
+    version=0~${ipk_version/-/-r}
+  else
+    version=${ipk_version/-/-r}
+  fi
+fi
+
+if [[ "$(<"${CONTROL_FILE}")" =~ Depends:[[:space:]]([[:print:]]+) ]]
+then
+  depends="${BASH_REMATCH[1]}"
+fi
+
+if [[ "$(<"${CONTROL_FILE}")" =~ Source:[[:space:]]([[:print:]]+) ]]
+then
+  origin="${BASH_REMATCH[1]}"
+fi
+
+if [[ "$(<"${CONTROL_FILE}")" =~ License:[[:space:]]([[:print:]]+) ]]
+then
+  license="${BASH_REMATCH[1]}"
+fi
+
+if [[ "$(<"${CONTROL_FILE}")" =~ Section:[[:space:]]([[:print:]]+) ]]
+then
+  section="${BASH_REMATCH[1]}"
+fi
+
+if [[ "$(<"${CONTROL_FILE}")" =~ Maintainer:[[:space:]]([[:print:]]+) ]]
+then
+  maintainer="${BASH_REMATCH[1]}"
+fi
+
+if [[ "$(<"${CONTROL_FILE}")" =~ Architecture:[[:space:]]([[:print:]]+) ]]
+then
+  arch="${BASH_REMATCH[1]}"
+fi
+
+if [[ "$(<"${CONTROL_FILE}")" =~ Installed-Size:[[:space:]]([[:print:]]+) ]]
+then
+  installed_size="${BASH_REMATCH[1]}"
+fi
+
+if [[ "$(<"${CONTROL_FILE}")" =~ Description:[[:space:]]([[:print:]]+) ]]
+then
+  description="${BASH_REMATCH[1]}"
+fi
+
+mkdir -p ${dest_dir}
+tmp_dir="${dest_dir}/$(basename ${0}).${$}"
+mkdir ${tmp_dir}
+mv ${CONTROL_DIRECTORY} ${tmp_dir}/
+
+apk mkpkg                              \
+--info   "name:${name}"                \
+--info   "version:${version}"          \
+--info   "description:${descrption}"   \
+--info   "arch:${arch}"                \
+--info   "license:${license}"          \
+--info   "origin: ${origin}"           \
+--info   "maintainer:${maintainer}"    \
+--files  ${pkg_dir}                    \
+--output ${dest_dir}/${name}_${version}_${arch}.apk
+
+mv ${tmp_dir}/${CONTROL_DIRECTORY} ${pkg_dir}
+rmdir ${tmp_dir}

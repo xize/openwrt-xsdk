@@ -1,0 +1,7 @@
+# Put your custom commands here that should be executed once
+# the system init finished. By default this file does nothing.
+
+ethtool -s ghn speed 100 duplex full autoneg off
+
+exit 0
+
