@@ -1,0 +1,16 @@
+#!/bin/sh
+
+if [ "$(uci -q get xsdk.@factory[0].init)" != "1" ];
+then
+
+uci del wireless.radio0.htmode
+uci set wireless.radio0.channel='auto'
+uci set wireless.radio0.cell_density='0'
+uci set wireless.default_radio0.ssid='devolo-619-Setup'
+uci set wireless.default_radio0.network='wan'
+uci set wireless.default_radio0.enabled='true'
+
+fi
+
+exit 0
+
