@@ -38,13 +38,35 @@ fi
 if [[ "$(<"${CONTROL_FILE}")" =~ Version:[[:space:]]([[:print:]]+) ]]
 then
   ipk_version="${BASH_REMATCH[1]}"
-  regex='[[:alpha:]][[:alpha:]]'
-  if [[ "${ipk_version}" =~ $regex ]]
+  version=${ipk_version}
+  echo "Original version: ${ipk_version}"
+  if [[ "${version}" =~ ^([[:digit:]]+[\.|[:digit:]]+) ]]
   then
-    version=0~${ipk_version/-/-r}
+    digits="${BASH_REMATCH[1]}"
+    if [[ "${version}" =~ [g-z] ]] # check for non-hex character
+    then
+      version=${digits}
+    else
+      if [[ "${version}" =~ [^-]+-[^-]+- ]] # test if there are multiple - characters
+      then
+        version=${version//-/}
+      fi
+      if [[ "${version}" =~ [a-f] ]]
+      then
+        version=0~${version/-/-r}
+      else
+        version=${version/-/-r}
+      fi
+    fi
   else
-    version=${ipk_version/-/-r}
+    version=${version//./d}
+    if [[ "${version}" =~ [^-]+-[^-]+- ]] # test if there are multiple - characters
+    then
+      version=${version//-/}
+    fi
+    version=0~${version/-/-r}
   fi
+  echo "New version: ${version}"
 fi
 
 if [[ "$(<"${CONTROL_FILE}")" =~ Depends:[[:space:]]([[:print:]]+) ]]
@@ -101,7 +123,7 @@ apk mkpkg                              \
 --info   "origin: ${origin}"           \
 --info   "maintainer:${maintainer}"    \
 --files  ${pkg_dir}                    \
---output ${dest_dir}/${name}_${version}_${arch}.apk
+--output ${dest_dir}/${name}_${ipk_version}_${arch}.apk
 
 mv ${tmp_dir}/${CONTROL_DIRECTORY} ${pkg_dir}
 rmdir ${tmp_dir}
