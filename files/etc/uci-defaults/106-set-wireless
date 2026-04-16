@@ -10,6 +10,8 @@ uci set wireless.default_radio0.ssid='devolo-619-Setup'
 uci set wireless.default_radio0.network='wan'
 uci set wireless.default_radio0.enabled='true'
 
+uci commit wireless
+
 fi
 
 exit 0
