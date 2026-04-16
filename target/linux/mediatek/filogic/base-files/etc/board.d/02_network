@@ -125,7 +125,8 @@ mediatek_setup_interfaces()
 	bananapi,bpi-r3-mini|\
 	edgecore,eap111|\
 	huasifei,wh3000|\
-	huasifei,wh3000-pro)
+	huasifei,wh3000-pro-emmc|\
+	huasifei,wh3000-pro-nand)
 		ucidef_set_interfaces_lan_wan eth0 eth1
 		;;
 	bazis,ax3000wm|\
@@ -142,6 +143,9 @@ mediatek_setup_interfaces()
 	openembed,som7981|\
 	openwrt,one)
 		ucidef_set_interfaces_lan_wan eth1 eth0
+		;;
+	dlink,aquila-pro-ai-e30-a1)
+		ucidef_set_interface_lan "lan"
 		;;
 	dlink,aquila-pro-ai-m30-a1|\
 	dlink,aquila-pro-ai-m60-a1)

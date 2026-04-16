@@ -69,11 +69,6 @@
 #define RTPCS_93XX_MODEL_NAME_INFO		(0x0004)
 #define RTPCS_93XX_CHIP_INFO			(0x0008)
 
-#define PHY_PAGE_2	2
-#define PHY_PAGE_4	4
-
-#define RTL9300_PHY_ID_MASK 0xf0ffffff
-
 /* RTL930X SerDes supports the following modes:
  * 0x02: SGMII		0x04: 1000BX_FIBER	0x05: FIBER100
  * 0x06: QSGMII		0x09: RSGMII		0x0d: USXGMII
@@ -105,10 +100,14 @@
 #define RTPCS_931X_MAC_GROUP5_CTRL		(0x13b0)
 #define RTPCS_931X_MAC_GROUP6_7_CTRL		(0x13b4)
 #define RTPCS_931X_MAC_GROUP8_11_CTRL		(0x13b8)
-#define RTL931X_SERDES_MODE_CTRL		(0x13cc)
-#define RTL931X_PS_SERDES_OFF_MODE_CTRL_ADDR	(0x13F4)
-#define RTL931X_MAC_SERDES_MODE_CTRL(sds)	(0x136C + (((sds) << 2)))
+#define RTPCS_931X_SERDES_MODE_CTRL		(0x13cc)
+#define RTPCS_931X_PS_SERDES_OFF_MODE_CTRL_ADDR	(0x13F4)
+#define RTPCS_931X_MAC_SERDES_MODE_CTRL(sds)	(0x136C + (((sds) << 2)))
 #define RTPCS_931X_ISR_SERDES_RXIDLE		(0x12f8)
+
+#define RTPCS_931X_SDS_PRE_AMP_MASK		GENMASK(4, 0)
+#define RTPCS_931X_SDS_MAIN_AMP_MASK		GENMASK(9, 5)
+#define RTPCS_931X_SDS_POST_AMP_MASK		GENMASK(14, 10)
 
 enum rtpcs_sds_mode {
 	RTPCS_SDS_MODE_OFF = 0,
@@ -139,6 +138,7 @@ enum rtpcs_sds_media {
 	RTPCS_SDS_MEDIA_FIBER,
 	RTPCS_SDS_MEDIA_DAC_SHORT,	/*  < 3m */
 	RTPCS_SDS_MEDIA_DAC_LONG,	/* >= 3m */
+	RTPCS_SDS_MEDIA_PCB,
 };
 
 enum rtpcs_sds_pll_type {
@@ -162,7 +162,7 @@ enum rtpcs_chip_version {
 struct rtpcs_ctrl;
 struct rtpcs_serdes;
 
-struct rtpcs_serdes_ops {
+struct rtpcs_sds_ops {
 	int (*read)(struct rtpcs_serdes *sds, int page, int regnum, int bithigh, int bitlow);
 	int (*write)(struct rtpcs_serdes *sds, int page, int regnum, int bithigh, int bitlow,
 		     u16 value);
@@ -199,7 +199,7 @@ struct rtpcs_sds_regs {
 
 struct rtpcs_serdes {
 	struct rtpcs_ctrl *ctrl;
-	const struct rtpcs_serdes_ops *ops;
+	const struct rtpcs_sds_ops *ops;
 	const struct rtpcs_sds_regs *regs;
 	enum rtpcs_sds_mode hw_mode;
 	u8 id;
@@ -241,9 +241,9 @@ struct rtpcs_config {
 	u8 serdes_count;
 
 	const struct phylink_pcs_ops *pcs_ops;
-	const struct rtpcs_serdes_ops *sds_ops;
+	const struct rtpcs_sds_ops *sds_ops;
 	const struct rtpcs_sds_regs *sds_regs;
-	int (*init_serdes_common)(struct rtpcs_ctrl *ctrl);
+	int (*init)(struct rtpcs_ctrl *ctrl);
 	int (*setup_serdes)(struct rtpcs_serdes *sds, enum rtpcs_sds_mode hw_mode);
 };
 
@@ -251,6 +251,12 @@ struct rtpcs_sds_config {
 	u8 page;
 	u8 reg;
 	u16 data;
+};
+
+struct rtpcs_sds_tx_config {
+	u8 pre_amp;
+	u8 main_amp;
+	u8 post_amp;
 };
 
 static int rtpcs_sds_to_mmd(int sds_page, int sds_regnum)
@@ -472,6 +478,16 @@ static int rtpcs_sds_determine_hw_mode(struct rtpcs_serdes *sds,
 	/* TODO: check if the particular SerDes supports the mode */
 
 	return 0;
+}
+
+static bool rtpcs_sds_mode_is_usxgmii(enum rtpcs_sds_mode hw_mode)
+{
+	return (hw_mode == RTPCS_SDS_MODE_USXGMII_10GSXGMII ||
+		hw_mode == RTPCS_SDS_MODE_USXGMII_10GDXGMII ||
+		hw_mode == RTPCS_SDS_MODE_USXGMII_10GQXGMII ||
+		hw_mode == RTPCS_SDS_MODE_USXGMII_5GSXGMII ||
+		hw_mode == RTPCS_SDS_MODE_USXGMII_5GDXGMII ||
+		hw_mode == RTPCS_SDS_MODE_USXGMII_2_5GSXGMII);
 }
 
 /* Generic auto-negotiation config */
@@ -815,13 +831,13 @@ static int rtpcs_838x_sds_patch(struct rtpcs_serdes *sds,
 	default:
 		break;
 	}
-	
+
 	return 0;
 }
 
-static int rtpcs_838x_init_serdes_common(struct rtpcs_ctrl *ctrl)
+static int rtpcs_838x_init(struct rtpcs_ctrl *ctrl)
 {
-	dev_dbg(ctrl->dev, "Init RTL838X SerDes common\n");
+	dev_dbg(ctrl->dev, "Init RTL838X PCS\n");
 
 	/* power off and reset all SerDes */
 	regmap_write(ctrl->map, RTPCS_838X_SDS_CFG_REG, 0x3f);
@@ -851,7 +867,7 @@ static int rtpcs_838x_setup_serdes(struct rtpcs_serdes *sds,
 
 	rtpcs_838x_sds_patch(sds, hw_mode);
 	rtpcs_838x_sds_reset(sds);
-	
+
 	/* release reset */
 	rtpcs_sds_write(sds, 0, 3, 0x7106);
 
@@ -1066,7 +1082,7 @@ static void rtpcs_839x_sds_init(struct rtpcs_serdes *sds)
 	rtpcs_sds_write_bits(sds, 0x2e, 0x13, 8, 5, 0x0008);
 }
 
-static int rtpcs_839x_init_serdes_common(struct rtpcs_ctrl *ctrl)
+static int rtpcs_839x_init(struct rtpcs_ctrl *ctrl)
 {
 	for (int sds_id = 0; sds_id < ctrl->cfg->serdes_count; sds_id++)
 		rtpcs_839x_sds_init(&ctrl->serdes[sds_id]);
@@ -1116,7 +1132,7 @@ static int rtpcs_93xx_sds_set_autoneg(struct rtpcs_serdes *sds, unsigned int neg
 	}
 }
 
-static int rtpcs_93xx_init_serdes_common(struct rtpcs_ctrl *ctrl)
+static int rtpcs_93xx_init(struct rtpcs_ctrl *ctrl)
 {
 	u32 model_info = 0;
 	int rl_vid, val;
@@ -1282,7 +1298,7 @@ pll_setup:
 
 /* RTL930X */
 
-/* 
+/*
  * RTL930X needs a special mapping from logic SerDes ID to physical SerDes ID,
  * which takes the page into account. This applies to most of read/write calls.
  */
@@ -2640,17 +2656,17 @@ static void rtpcs_930x_phy_enable_10g_1g(struct rtpcs_serdes *sds)
 	u32 v;
 
 	/* Enable 1GBit PHY */
-	v = rtpcs_sds_read(sds, PHY_PAGE_2, MII_BMCR);
+	v = rtpcs_sds_read(sds, 0x02, MII_BMCR);
 	pr_info("%s 1gbit phy: %08x\n", __func__, v);
 	v &= ~BMCR_PDOWN;
-	rtpcs_sds_write(sds, PHY_PAGE_2, MII_BMCR, v);
+	rtpcs_sds_write(sds, 0x02, MII_BMCR, v);
 	pr_info("%s 1gbit phy enabled: %08x\n", __func__, v);
 
 	/* Enable 10GBit PHY */
-	v = rtpcs_sds_read(sds, PHY_PAGE_4, MII_BMCR);
+	v = rtpcs_sds_read(sds, 0x04, MII_BMCR);
 	pr_info("%s 10gbit phy: %08x\n", __func__, v);
 	v &= ~BMCR_PDOWN;
-	rtpcs_sds_write(sds, PHY_PAGE_4, MII_BMCR, v);
+	rtpcs_sds_write(sds, 0x04, MII_BMCR, v);
 	pr_info("%s 10gbit phy after: %08x\n", __func__, v);
 
 	/* dal_longan_construct_mac_default_10gmedia_fiber */
@@ -2814,10 +2830,6 @@ static int rtpcs_930x_sds_config_hw_mode(struct rtpcs_serdes *sds, enum rtpcs_sd
 
 	apply_fn = is_xsgmii ? rtpcs_sds_apply_config_xsg : rtpcs_sds_apply_config;
 
-	/* USXGMII-QX broken, rely on bootloader setup */
-	if (hw_mode == RTPCS_SDS_MODE_USXGMII_10GQXGMII)
-		return 0;
-
 	if (hw_mode == RTPCS_SDS_MODE_QSGMII) {
 		if (sds->id >= 2)
 			return -ENOTSUPP;
@@ -2893,6 +2905,7 @@ static int rtpcs_930x_sds_config_hw_mode(struct rtpcs_serdes *sds, enum rtpcs_sd
 
 	case RTPCS_SDS_MODE_XSGMII:
 	case RTPCS_SDS_MODE_USXGMII_10GSXGMII:
+	case RTPCS_SDS_MODE_USXGMII_10GQXGMII:
 		ret = apply_fn(sds, rtpcs_930x_sds_cfg_ana_10g,
 			       ARRAY_SIZE(rtpcs_930x_sds_cfg_ana_10g));
 		if (ret < 0)
@@ -2903,7 +2916,7 @@ static int rtpcs_930x_sds_config_hw_mode(struct rtpcs_serdes *sds, enum rtpcs_sd
 		if (ret < 0)
 			return ret;
 
-		if (hw_mode == RTPCS_SDS_MODE_USXGMII_10GSXGMII)
+		if (!is_xsgmii)
 			/* opcode 0x03: standard/generic USXGMII mode */
 			rtpcs_930x_sds_usxgmii_config(sds, true, 0x03, 0xa4, 0, 1, 0x1);
 		break;
@@ -3132,7 +3145,7 @@ static int rtpcs_931x_sds_power(struct rtpcs_serdes *sds, bool power_on)
 	u32 en_val = power_on ? 0 : BIT(sds->id);
 
 	return regmap_write_bits(sds->ctrl->map,
-				 RTL931X_PS_SERDES_OFF_MODE_CTRL_ADDR,
+				 RTPCS_931X_PS_SERDES_OFF_MODE_CTRL_ADDR,
 				 BIT(sds->id), en_val);
 }
 
@@ -3177,7 +3190,7 @@ static int rtpcs_931x_sds_set_mac_mode(struct rtpcs_serdes *sds,
 
 	mode_val |= BIT(7); /* force mode bit */
 	return regmap_write_bits(sds->ctrl->map,
-				 RTL931X_SERDES_MODE_CTRL + 4 * (sds->id >> 2),
+				 RTPCS_931X_SERDES_MODE_CTRL + 4 * (sds->id >> 2),
 				 0xff << shift, mode_val << shift);
 }
 
@@ -3262,11 +3275,11 @@ static void rtpcs_931x_sds_reset(struct rtpcs_serdes *sds)
 
 	rtpcs_931x_sds_power(sds, false);
 
-	regmap_read(ctrl->map, RTL931X_SERDES_MODE_CTRL + 4 * (sds_id >> 2), &o_mode);
+	regmap_read(ctrl->map, RTPCS_931X_SERDES_MODE_CTRL + 4 * (sds_id >> 2), &o_mode);
 	v = BIT(7) | 0x1F;
-	regmap_write_bits(ctrl->map, RTL931X_SERDES_MODE_CTRL + 4 * (sds_id >> 2),
+	regmap_write_bits(ctrl->map, RTPCS_931X_SERDES_MODE_CTRL + 4 * (sds_id >> 2),
 			  0xff << shift, v << shift);
-	regmap_write(ctrl->map, RTL931X_SERDES_MODE_CTRL + 4 * (sds_id >> 2), o_mode);
+	regmap_write(ctrl->map, RTPCS_931X_SERDES_MODE_CTRL + 4 * (sds_id >> 2), o_mode);
 
 	rtpcs_931x_sds_power(sds, true);
 }
@@ -3498,11 +3511,121 @@ static int rtpcs_931x_sds_set_polarity(struct rtpcs_serdes *sds,
 	return rtpcs_sds_write_bits(sds, 0x80, 0x0, 9, 8, val);
 }
 
+static const struct rtpcs_sds_tx_config rtpcs_931x_sds_tx_cfg_v1[] = {
+	{ .pre_amp = 0x00, .main_amp = 0x10, .post_amp = 0x06 },
+	{ .pre_amp = 0x00, .main_amp = 0x10, .post_amp = 0x06 },
+	{ .pre_amp = 0x00, .main_amp = 0x10 },
+	{ .pre_amp = 0x00, .main_amp = 0x10 },
+	{ .pre_amp = 0x00, .main_amp = 0x10 },
+	{ .pre_amp = 0x00, .main_amp = 0x10 },
+	{ .pre_amp = 0x03, .main_amp = 0x0d },
+	{ .pre_amp = 0x03, .main_amp = 0x0d },
+	{ .pre_amp = 0x03, .main_amp = 0x0d },
+	{ .pre_amp = 0x03, .main_amp = 0x0d },
+	{ .pre_amp = 0x03, .main_amp = 0x0f },
+	{ .pre_amp = 0x03, .main_amp = 0x0f },
+};
+static const struct rtpcs_sds_tx_config rtpcs_931x_sds_tx_cfg_v2[] = {
+	{ .pre_amp = 0x00, .main_amp = 0x0e, .post_amp = 0x03 },
+	{ .pre_amp = 0x00, .main_amp = 0x0e },
+	{ .pre_amp = 0x00, .main_amp = 0x10 },
+	{ .pre_amp = 0x00, .main_amp = 0x0c },
+	{ .pre_amp = 0x00, .main_amp = 0x0b },
+	{ .pre_amp = 0x03, .main_amp = 0x09 },
+	{ .pre_amp = 0x03, .main_amp = 0x09 },
+	{ .pre_amp = 0x03, .main_amp = 0x0b },
+	{ .pre_amp = 0x03, .main_amp = 0x0d },
+	{ .pre_amp = 0x00, .main_amp = 0x0d },
+	{ .pre_amp = 0x03, .main_amp = 0x0e },
+	{ .pre_amp = 0x03, .main_amp = 0x0e, .post_amp = 0x02 },
+};
+static const struct rtpcs_sds_tx_config rtpcs_931x_sds_tx_cfg_sdac = { /* short DACs */
+	.pre_amp = 0x00, .main_amp = 0x1a, .post_amp = 0x04
+};
+static const struct rtpcs_sds_tx_config rtpcs_931x_sds_tx_cfg_ldac = { /* long DACs */
+	.pre_amp = 0x00, .main_amp = 0x10, .post_amp = 0x14
+};
+
+/**
+ * rtpcs_931x_sds_config_tx_amps - Configure SerDes TX amplifiers
+ *
+ * A SerDes has three amplifiers (pre, main, post) in the TX path that allow to tune the signal,
+ * usually based on eye diagrams. This is needed to account for different tx media, i.e. PCB
+ * trace, fiber, DAC. Using the amplifier coefficients, one can precondition the signal in such
+ * a way so that it arrives "clean" at the partner.
+ */
+static int rtpcs_931x_sds_config_tx_amps(struct rtpcs_serdes *sds, u8 pre_amp, u8 main_amp,
+					 u8 post_amp)
+{
+	u16 cfg_val, en_val = 0;
+	int ret;
+
+	cfg_val = FIELD_PREP(RTPCS_931X_SDS_PRE_AMP_MASK, pre_amp) |
+		  FIELD_PREP(RTPCS_931X_SDS_MAIN_AMP_MASK, main_amp) |
+		  FIELD_PREP(RTPCS_931X_SDS_POST_AMP_MASK, post_amp);
+	ret = rtpcs_sds_write(sds, 0x2e, 0x1, cfg_val);
+	if (ret < 0)
+		return ret;
+
+	/* enable/disable pre + post amp, main amp has no enable bit so seems always active */
+	if (post_amp)
+		en_val |= BIT(0);
+	if (pre_amp)
+		en_val |= BIT(1);
+
+	return rtpcs_sds_write_bits(sds, 0x2e, 0x0, 1, 0, en_val);
+}
+
+/**
+ * rtpcs_931x_sds_config_tx - Configure static TX path parameters
+ */
+static int rtpcs_931x_sds_config_tx(struct rtpcs_serdes *sds,
+				    enum rtpcs_sds_media sds_media)
+{
+	const struct rtpcs_sds_tx_config *tx_cfg;
+
+	if (sds->id < 2)
+		return 0;
+
+	switch (sds_media) {
+	case RTPCS_SDS_MEDIA_DAC_SHORT:
+		tx_cfg = &rtpcs_931x_sds_tx_cfg_sdac;
+		break;
+
+	case RTPCS_SDS_MEDIA_DAC_LONG:
+		tx_cfg = &rtpcs_931x_sds_tx_cfg_ldac;
+		break;
+
+	default:
+		if (sds->ctrl->chip_version == RTPCS_CHIP_V2)
+			/* consider 9311 vs. 9313 here too, see SDK */
+			tx_cfg = &rtpcs_931x_sds_tx_cfg_v2[sds->id - 2];
+		else
+			tx_cfg = &rtpcs_931x_sds_tx_cfg_v1[sds->id - 2];
+
+		break;
+	}
+
+	return rtpcs_931x_sds_config_tx_amps(sds, tx_cfg->pre_amp, tx_cfg->main_amp,
+					     tx_cfg->post_amp);
+}
+
+/**
+ * rtpcs_931x_sds_config_rx - Configure static RX path parameters
+ */
+static int rtpcs_931x_sds_config_rx(struct rtpcs_serdes *sds,
+				    enum rtpcs_sds_media sds_media)
+{
+	/* TODO: Put all static RX configuration here */
+	return 0;
+}
+
 static int rtpcs_931x_sds_set_media(struct rtpcs_serdes *sds, enum rtpcs_sds_media sds_media,
 				    enum rtpcs_sds_mode hw_mode)
 {
 	struct rtpcs_serdes *even_sds = rtpcs_sds_get_even(sds);
 	bool is_dac, is_10g;
+	int ret;
 
 	/*
 	 * SDK identifies this as some kind of gating. It's enabled
@@ -3511,67 +3634,66 @@ static int rtpcs_931x_sds_set_media(struct rtpcs_serdes *sds, enum rtpcs_sds_med
 	 */
 	rtpcs_sds_write_bits(sds, 0x5f, 0x1, 0, 0, 0x1);
 
-	/* media none behavior */
+	/* from _phy_rtl9310_sds_init */
+	rtpcs_sds_write_bits(sds, 0x2e, 0xe, 13, 11, 0x0);
+	rtpcs_931x_sds_reset_leq_dfe(sds);
+
+	/*
+	 * SDK says: media none behavior
+	 *
+	 * - the first three calls are the same as in rx_reset
+	 * - the last one slightly differs in the value. Something is taken into power down
+	 *   while rx_reset doesn't do this.
+	 */
 	rtpcs_sds_write(sds, 0x2e, 0x12, 0x2740);
 	rtpcs_sds_write(sds, 0x2f, 0x0, 0x0);		/* [11:6] DFE_TAP3_ODD | [5:0] DFE_TAP3_EVEN */
 	rtpcs_sds_write(sds, 0x2f, 0x2, 0x2010);
 	rtpcs_sds_write(sds, 0x20, 0x0, 0xcd1);		/* from 930x: [7:6] POWER_DOWN OF ?? */
-	rtpcs_sds_write_bits(sds, 0x2e, 0xf, 5, 0, 0x4);
 
+	rtpcs_sds_write_bits(sds, 0x2e, 0xf, 5, 0, 0x4);
 	rtpcs_sds_write_bits(sds, 0x2a, 0x12, 7, 6, 0x1);
 
 	if (sds_media == RTPCS_SDS_MEDIA_NONE)
 		return 0;
 
-	rtpcs_sds_write(sds, 0x21, 0x19, 0xf0f0); /* from XS1930-10 SDK */
-	rtpcs_sds_write(even_sds, 0x2e, 0x8, 0x0294);	/* [10:7] impedance */
+	/* config SerDes TX path (amps, impedance, etc.) */
+	ret = rtpcs_931x_sds_config_tx(sds, sds_media);
+	if (ret < 0)
+		return ret;
 
-	/* from _phy_rtl9310_sds_init, DMS1250 SDK */
-	rtpcs_sds_write_bits(sds, 0x2e, 0xe, 13, 11, 0x0);
-	rtpcs_931x_sds_rx_reset(sds);
-	rtpcs_931x_sds_reset_leq_dfe(sds);
+	/* config SerDes RX path (LEQ, DFE, etc.) */
+	ret = rtpcs_931x_sds_config_rx(sds, sds_media);
+	if (ret < 0)
+		return ret;
 
 	is_dac = (sds_media == RTPCS_SDS_MEDIA_DAC_SHORT ||
 		  sds_media == RTPCS_SDS_MEDIA_DAC_LONG);
-	is_10g = (hw_mode == RTPCS_SDS_MODE_10GBASER);
+	is_10g = (hw_mode == RTPCS_SDS_MODE_10GBASER ||
+		  hw_mode == RTPCS_SDS_MODE_XSGMII ||
+		  rtpcs_sds_mode_is_usxgmii(hw_mode));
 
 	rtpcs_sds_write_bits(sds, 0x20, 0x0, 11, 10, 0x0);
 	rtpcs_sds_write_bits(sds, 0x2a, 0x7, 15, 15, is_dac ? 0x1 : 0x0);
 	rtpcs_sds_write_bits(sds, 0x20, 0x0, 11, 10, 0x3);
 
-	/* Skip the TX settings for non-10G for now because we do not know
-	 * if they have an effect for non-10G.
-	 */
-	if (!is_10g)
-		goto skip_tx;
-
 	switch (sds_media) {
 	case RTPCS_SDS_MEDIA_DAC_SHORT:
-		rtpcs_sds_write_bits(sds, 0x2e, 0x1, 15, 0, 0x1340);
-		rtpcs_sds_write(sds, 0x21, 0x19, 0xf0a5); /* from XS1930-10 SDK */
-		rtpcs_sds_write(even_sds, 0x2e, 0x8, 0x02a0); /* [10:7] impedance */
-		break;
-
 	case RTPCS_SDS_MEDIA_DAC_LONG:
-		rtpcs_sds_write_bits(sds, 0x2e, 0x1, 15, 0, 0x5200);
-		rtpcs_sds_write(sds, 0x21, 0x19, 0xf0a5); /* from XS1930-10 SDK */
-		rtpcs_sds_write(even_sds, 0x2e, 0x8, 0x02a0); /* [10:7] impedance */
+		rtpcs_sds_write(sds, 0x21, 0x19, 0xf0a5);	/* from XS1930-10 SDK */
+		rtpcs_sds_write(even_sds, 0x2e, 0x8, 0x02a0);	/* [10:7] impedance */
 		break;
 
 	case RTPCS_SDS_MEDIA_FIBER:
-		/*
-		 * TODO: this would need to be saved during early init, before
-		 * actually changing any SerDes settings. Then restored here.
-		 * see phy_rtl9310_init in SDK
-		 */
-		// rtpcs_sds_write(sds, 0x2e, 0x1, phy_rtl9310_10g_tx[unit][sds]);
-		rtpcs_sds_write_bits(sds, 0x2e, 0xf, 5, 0, 0x2); /* from DMS1250 SDK */
-		break;
+		if (is_10g)
+			rtpcs_sds_write_bits(sds, 0x2e, 0xf, 5, 0, 0x2); /* from DMS1250 SDK */
+
+		fallthrough;
 	default:
+		rtpcs_sds_write(sds, 0x21, 0x19, 0xf0f0);	/* from XS1930 SDK */
+		rtpcs_sds_write(even_sds, 0x2e, 0x8, 0x0294);	/* [10:7] TX impedance */
 		break;
 	}
 
-skip_tx:
 	/* CFG_LINKDW_SEL? (same semantics as 930x) */
 	rtpcs_sds_write_bits(sds, 0x6, 0xd, 6, 6, is_dac ? 0x0 : 0x1);
 
@@ -3676,16 +3798,9 @@ static int rtpcs_931x_sds_config_hw_mode(struct rtpcs_serdes *sds,
 static int rtpcs_931x_setup_serdes(struct rtpcs_serdes *sds,
 				   enum rtpcs_sds_mode hw_mode)
 {
-	u32 board_sds_tx[] = {
-		0x1a00, 0x1a00, 0x0200, 0x0200, 0x0200, 0x0200,
-		0x01a3, 0x01a3, 0x01a3, 0x01a3, 0x01e3, 0x01e3
-	};
-	u32 board_sds_tx2[] = {
-		0x0dc0, 0x01c0, 0x0200, 0x0180, 0x0160, 0x0123,
-		0x0123, 0x0163, 0x01a3, 0x01a0, 0x01c3, 0x09c3,
-	};
 	struct rtpcs_serdes *even_sds = rtpcs_sds_get_even(sds);
 	struct rtpcs_ctrl *ctrl = sds->ctrl;
+	enum rtpcs_sds_media sds_media;
 	u32 sds_id = sds->id;
 	u32 val;
 	int ret;
@@ -3713,7 +3828,7 @@ static int rtpcs_931x_setup_serdes(struct rtpcs_serdes *sds,
 		rtpcs_sds_read(sds, 0x24, 0x9));
 	pr_info("%s: CMU mode %08X stored even SDS %d", __func__,
 		rtpcs_sds_read(even_sds, 0x20, 0x12), even_sds->id);
-	pr_info("%s: serdes_mode_ctrl %08X", __func__,  RTL931X_SERDES_MODE_CTRL + 4 * (sds_id >> 2));
+	pr_info("%s: serdes_mode_ctrl %08X", __func__,  RTPCS_931X_SERDES_MODE_CTRL + 4 * (sds_id >> 2));
 	pr_info("%s CMU page 0x24 0x7 %08x\n", __func__, rtpcs_sds_read(sds, 0x24, 0x7));
 	pr_info("%s CMU page 0x26 0x7 %08x\n", __func__, rtpcs_sds_read(sds, 0x26, 0x7));
 	pr_info("%s CMU page 0x28 0x7 %08x\n", __func__, rtpcs_sds_read(sds, 0x28, 0x7));
@@ -3734,24 +3849,22 @@ static int rtpcs_931x_setup_serdes(struct rtpcs_serdes *sds,
 
 	switch (hw_mode) {
 	case RTPCS_SDS_MODE_OFF:
-		ret = rtpcs_931x_sds_set_media(sds, RTPCS_SDS_MEDIA_NONE, hw_mode);
+		sds_media = RTPCS_SDS_MEDIA_NONE;
 		break;
 	case RTPCS_SDS_MODE_SGMII:
 	case RTPCS_SDS_MODE_1000BASEX:
 	case RTPCS_SDS_MODE_2500BASEX:
 	case RTPCS_SDS_MODE_10GBASER:
-		ret = rtpcs_931x_sds_set_media(sds, RTPCS_SDS_MEDIA_FIBER, hw_mode);
+		sds_media = RTPCS_SDS_MEDIA_FIBER;
 		break;
 	default:
+		sds_media = RTPCS_SDS_MEDIA_PCB;
 		break;
 	}
-
-	if (sds_id >= 2) {
-		if (ctrl->chip_version == RTPCS_CHIP_V2)
-			/* consider 9311 etc. RTL9313_CHIP_ID == HWP_CHIP_ID(unit)) */
-			rtpcs_sds_write(sds, 0x2E, 0x1, board_sds_tx2[sds_id - 2]);
-		else
-			rtpcs_sds_write(sds, 0x2E, 0x1, board_sds_tx[sds_id - 2]);
+	ret = rtpcs_931x_sds_set_media(sds, sds_media, hw_mode);
+	if (ret < 0) {
+		dev_err(ctrl->dev, "failed to config SerDes for media: %d\n", ret);
+		return ret;
 	}
 
 	rtpcs_931x_sds_set_polarity(sds, sds->tx_pol_inv, sds->rx_pol_inv);
@@ -3809,7 +3922,7 @@ static int rtpcs_931x_init(struct rtpcs_ctrl *ctrl)
 	if (ret < 0)
 		return ret;
 
-	return rtpcs_93xx_init_serdes_common(ctrl);
+	return rtpcs_93xx_init(ctrl);
 }
 
 /* Common functions */
@@ -4070,8 +4183,8 @@ static int rtpcs_probe(struct platform_device *pdev)
 		sds->tx_pol_inv = of_property_read_bool(child, "realtek,pnswap-tx");
 	}
 
-	if (ctrl->cfg->init_serdes_common) {
-		ret = ctrl->cfg->init_serdes_common(ctrl);
+	if (ctrl->cfg->init) {
+		ret = ctrl->cfg->init(ctrl);
 		if (ret)
 			return ret;
 	}
@@ -4093,7 +4206,7 @@ static const struct phylink_pcs_ops rtpcs_838x_pcs_ops = {
 	.pcs_get_state		= rtpcs_pcs_get_state,
 };
 
-static const struct rtpcs_serdes_ops rtpcs_838x_sds_ops = {
+static const struct rtpcs_sds_ops rtpcs_838x_sds_ops = {
 	.read			= rtpcs_generic_sds_op_read,
 	.write			= rtpcs_generic_sds_op_write,
 	.set_autoneg		= rtpcs_generic_sds_set_autoneg,
@@ -4118,7 +4231,7 @@ static const struct rtpcs_config rtpcs_838x_cfg = {
 	.pcs_ops		= &rtpcs_838x_pcs_ops,
 	.sds_ops		= &rtpcs_838x_sds_ops,
 	.sds_regs		= &rtpcs_838x_sds_regs,
-	.init_serdes_common	= rtpcs_838x_init_serdes_common,
+	.init			= rtpcs_838x_init,
 	.setup_serdes		= rtpcs_838x_setup_serdes,
 };
 
@@ -4128,7 +4241,7 @@ static const struct phylink_pcs_ops rtpcs_839x_pcs_ops = {
 	.pcs_get_state		= rtpcs_pcs_get_state,
 };
 
-static const struct rtpcs_serdes_ops rtpcs_839x_sds_ops = {
+static const struct rtpcs_sds_ops rtpcs_839x_sds_ops = {
 	.read			= rtpcs_generic_sds_op_read,
 	.write			= rtpcs_generic_sds_op_write,
 	.set_autoneg		= rtpcs_generic_sds_set_autoneg,
@@ -4153,7 +4266,7 @@ static const struct rtpcs_config rtpcs_839x_cfg = {
 	.pcs_ops		= &rtpcs_839x_pcs_ops,
 	.sds_ops		= &rtpcs_839x_sds_ops,
 	.sds_regs		= &rtpcs_839x_sds_regs,
-	.init_serdes_common	= rtpcs_839x_init_serdes_common,
+	.init			= rtpcs_839x_init,
 	.setup_serdes		= rtpcs_839x_setup_serdes,
 };
 
@@ -4163,7 +4276,7 @@ static const struct phylink_pcs_ops rtpcs_930x_pcs_ops = {
 	.pcs_get_state		= rtpcs_pcs_get_state,
 };
 
-static const struct rtpcs_serdes_ops rtpcs_930x_sds_ops = {
+static const struct rtpcs_sds_ops rtpcs_930x_sds_ops = {
 	.read			= rtpcs_930x_sds_op_read,
 	.write			= rtpcs_930x_sds_op_write,
 	.xsg_write		= rtpcs_930x_sds_op_xsg_write,
@@ -4193,7 +4306,7 @@ static const struct rtpcs_config rtpcs_930x_cfg = {
 	.pcs_ops		= &rtpcs_930x_pcs_ops,
 	.sds_ops		= &rtpcs_930x_sds_ops,
 	.sds_regs		= &rtpcs_930x_sds_regs,
-	.init_serdes_common	= rtpcs_93xx_init_serdes_common,
+	.init			= rtpcs_93xx_init,
 	.setup_serdes		= rtpcs_930x_setup_serdes,
 };
 
@@ -4203,7 +4316,7 @@ static const struct phylink_pcs_ops rtpcs_931x_pcs_ops = {
 	.pcs_get_state		= rtpcs_pcs_get_state,
 };
 
-static const struct rtpcs_serdes_ops rtpcs_931x_sds_ops = {
+static const struct rtpcs_sds_ops rtpcs_931x_sds_ops = {
 	.read			= rtpcs_generic_sds_op_read,
 	.write			= rtpcs_generic_sds_op_write,
 	.xsg_write		= rtpcs_931x_sds_op_xsg_write,
@@ -4232,7 +4345,7 @@ static const struct rtpcs_config rtpcs_931x_cfg = {
 	.pcs_ops		= &rtpcs_931x_pcs_ops,
 	.sds_ops		= &rtpcs_931x_sds_ops,
 	.sds_regs		= &rtpcs_931x_sds_regs,
-	.init_serdes_common	= rtpcs_931x_init,
+	.init			= rtpcs_931x_init,
 	.setup_serdes		= rtpcs_931x_setup_serdes,
 };
 
