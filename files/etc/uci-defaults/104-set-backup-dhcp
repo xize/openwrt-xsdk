@@ -1,0 +1,24 @@
+#!/bin/sh
+
+if [ "$(uci -q get xsdk.@factory[0].init)" != "1" ];
+then
+	# create an alias network of wan, when wan fails it will use the dhcp server locally.
+	# this will fix management issues.
+        uci set network.wan_backup=interface
+        uci set network.wan_backup.proto='static'
+        uci set network.wan_backup.device='@wan'
+        uci set network.wan_backup.ipaddr='192.168.89.1'
+        uci set network.wan_backup.netmask='255.255.255.0'
+
+	uci set dhcp.wan_backup=dhcp
+	uci set dhcp.wan_backup.interface='wan_backup'
+	uci set dhcp.wan_backup.start='2'
+	uci set dhcp.wan_backup.limit='150'
+	uci set dhcp.wan_backup.leasetime='12h'
+
+	uci commit network
+	uci commit dhcp
+fi
+
+exit 0
+
