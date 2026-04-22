@@ -6,12 +6,12 @@ then
 uci batch << EOI
 
 set ghn.ghn=ghn
-set ghn.ghn.disabled=0
+set ghn.ghn.disabled=1
 set ghn.ghn.interface=ghn
 set ghn.settings=settings
-set ghn.settings.device_name="<devicename, like: devolo-123>"
-set ghn.settings.domain_name="<domain, must match your other device(s)>"
-set ghn.settings.password="<password, must match your other device(s)>"
+set ghn.settings.device_name="insertname"
+set ghn.settings.domain_name="yourdomain"
+set ghn.settings.password="password"
 set ghn.settings.pairing_secured=1
 set ghn.settings.pairing_completed=1
 set ghn.settings.powermask_profile=mimo_full
