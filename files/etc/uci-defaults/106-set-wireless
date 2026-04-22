@@ -14,5 +14,7 @@ uci commit wireless
 
 fi
 
+wifi
+
 exit 0
 
