@@ -8,4 +8,4 @@ src-git video https://github.com/openwrt/video.git
 #src-git targets https://github.com/openwrt/targets.git
 #src-git oldpackages http://git.openwrt.org/packages.git
 src-git amnezia https://github.com/Slava-Shchipunov/awg-openwrt.git
-src-git stangri_repo https://github.com/stangri/apk.openwrt.melmac.ca.git
+src-git melmac_repo https://github.com/stangri/apk.openwrt.melmac.ca.git
