@@ -2,6 +2,7 @@ CONFIG_TARGET_mediatek=y
 CONFIG_TARGET_mediatek_filogic=y
 CONFIG_TARGET_mediatek_filogic_DEVICE_glinet_gl-mt6000=y
 # CONFIG_FEED_amnezia is not set
+# CONFIG_FEED_melmac_repo is not set
 CONFIG_IMAGEOPT=y
 CONFIG_LIBCURL_COOKIES=y
 CONFIG_LIBCURL_FILE=y
