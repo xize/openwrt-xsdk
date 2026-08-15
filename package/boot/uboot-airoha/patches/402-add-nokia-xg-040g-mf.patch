@@ -1,31 +1,38 @@
+From: Mikhail Zhilkin <csharper2005@gmail.com>
+Subject: [PATCH] uboot-airoha: add Nokia XG-040G-MF support
+
+Introduce OpenWrt U-Boot support for the Nokia XG-040G-MF board.
+
+Signed-off-by: Mikhail Zhilkin <csharper2005@gmail.com>
+
 --- /dev/null
-+++ b/configs/an7581_nokia_xg-040g-md_defconfig
-@@ -0,0 +1,133 @@
++++ b/configs/an7583_nokia_xg-040g-mf_defconfig
+@@ -0,0 +1,131 @@
 +CONFIG_ARM=y
 +CONFIG_ARCH_AIROHA=y
 +CONFIG_POSITION_INDEPENDENT=y
 +CONFIG_BOOTDELAY=3
 +CONFIG_AUTOBOOT_KEYED=y
 +CONFIG_AUTOBOOT_MENU_SHOW=y
-+CONFIG_TARGET_AN7581=y
++CONFIG_TARGET_AN7583=y
 +CONFIG_TEXT_BASE=0x81e00000
 +CONFIG_SYS_MALLOC_F_LEN=0x4000
 +CONFIG_NR_DRAM_BANKS=1
 +CONFIG_DM_GPIO=y
-+CONFIG_DEFAULT_DEVICE_TREE="airoha/an7581-nokia-xg-040g-md"
++CONFIG_DEFAULT_DEVICE_TREE="an7583-nokia-xg-040g-mf"
 +CONFIG_SYS_LOAD_ADDR=0x81800000
 +CONFIG_BUILD_TARGET="u-boot.bin"
 +# CONFIG_EFI_LOADER is not set
 +CONFIG_FIT=y
 +CONFIG_FIT_VERBOSE=y
-+CONFIG_DEFAULT_FDT_FILE="airoha/an7581-nokia-xg-040g-md.dtb"
++CONFIG_DEFAULT_FDT_FILE="an7583-nokia-xg-040g-mf.dtb"
 +CONFIG_LOGLEVEL=9
 +CONFIG_LOG=y
 +CONFIG_SYS_PBSIZE=1049
 +CONFIG_SYS_CONSOLE_IS_IN_ENV=y
 +# CONFIG_DISPLAY_BOARDINFO is not set
 +CONFIG_HUSH_PARSER=y
-+CONFIG_SYS_PROMPT="AN7581> "
++CONFIG_SYS_PROMPT="AN7583> "
 +CONFIG_SYS_MAXARGS=8
 +CONFIG_CMD_CPU=y
 +CONFIG_CMD_LICENSE=y
@@ -66,7 +73,7 @@
 +CONFIG_ENV_UBI_VOLUME_REDUND="ubootenv2"
 +CONFIG_ENV_RELOC_GD_ENV_ADDR=y
 +CONFIG_ENV_USE_DEFAULT_ENV_TEXT_FILE=y
-+CONFIG_ENV_DEFAULT_ENV_TEXT_FILE="defenvs/an7581_nokia_xg-040g-md_env"
++CONFIG_ENV_DEFAULT_ENV_TEXT_FILE="defenvs/an7583_nokia_xg-040g-mf_env"
 +CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG=y
 +# CONFIG_ENV_IS_IN_MTD is not set
 +# CONFIG_MMC is not set
@@ -90,7 +97,6 @@
 +CONFIG_NET_RANDOM_ETHADDR=y
 +CONFIG_BUTTON=y
 +CONFIG_BUTTON_GPIO=y
-+CONFIG_OF_UPSTREAM=y
 +CONFIG_SYS_RELOC_GD_ENV_ADDR=y
 +CONFIG_SYS_RX_ETH_BUFFER=8
 +CONFIG_REGMAP=y
@@ -114,10 +120,10 @@
 +CONFIG_DM_MDIO=y
 +CONFIG_CMD_MII=y
 +CONFIG_CMD_MDIO=y
-+CONFIG_PCS_AIROHA_AN7581=y
++CONFIG_PCS_AIROHA_AN7583=y
 +CONFIG_PHY=y
 +CONFIG_PINCTRL=y
-+CONFIG_PINCTRL_AIROHA_AN7581=y
++CONFIG_PINCTRL_AIROHA_AN7583=y
 +CONFIG_POWER_DOMAIN=y
 +CONFIG_DM_REGULATOR=y
 +CONFIG_DM_REGULATOR_FIXED=y
@@ -129,13 +135,12 @@
 +CONFIG_AIROHA_SNFI_SPI=y
 +CONFIG_SHA512=y
 +CONFIG_USE_DEFAULT_ENV_FILE=y
-+CONFIG_DEFAULT_ENV_FILE="defenvs/an7581_nokia_xg-040g-md_env"
-+CONFIG_PCS_AIROHA_AN7581=y
++CONFIG_DEFAULT_ENV_FILE="defenvs/an7583_nokia_xg-040g-mf_env"
 +CONFIG_PHY_AIROHA_EN8811=y
 +CONFIG_PHY_ANEG_TIMEOUT=10000
 +CONFIG_PHY_ETHERNET_ID=y
 --- /dev/null
-+++ b/defenvs/an7581_nokia_xg-040g-md_env
++++ b/defenvs/an7583_nokia_xg-040g-mf_env
 @@ -0,0 +1,53 @@
 +ipaddr=192.168.1.1
 +serverip=192.168.1.254
@@ -144,10 +149,10 @@
 +bootcmd=run check_buttons ; run boot_ubi
 +bootconf=config-1
 +bootdelay=0
-+bootfile=openwrt-airoha-an7581-nokia_xg-040g-md-ubi-initramfs-recovery.itb
-+bootfile_bl2=openwrt-airoha-an7581-nokia_xg-040g-md-ubi-preloader.bin
-+bootfile_fip=openwrt-airoha-an7581-nokia_xg-040g-md-ubi-bl31-uboot.fip
-+bootfile_upg=openwrt-airoha-an7581-nokia_xg-040g-md-ubi-squashfs-sysupgrade.itb
++bootfile=openwrt-airoha-an7583-nokia_xg-040g-mf-ubi-initramfs-recovery.itb
++bootfile_bl2=openwrt-airoha-an7583-nokia_xg-040g-mf-ubi-preloader.bin
++bootfile_fip=openwrt-airoha-an7583-nokia_xg-040g-mf-ubi-bl31-uboot.fip
++bootfile_upg=openwrt-airoha-an7583-nokia_xg-040g-mf-ubi-squashfs-sysupgrade.itb
 +bootled_status=green:power
 +bootmenu_confirm_return=askenv - Press ENTER to return to menu ; bootmenu 60
 +bootmenu_default=0
@@ -191,21 +196,19 @@
 +_switch_to_menu=setenv _switch_to_menu ; setenv bootdelay 3 ; setenv bootmenu_delay 3 ; setenv bootmenu_0 $bootmenu_0d ; setenv bootmenu_0d ; run _bootmenu_update_title
 +_bootmenu_update_title=setenv _bootmenu_update_title ; setenv bootmenu_title "$bootmenu_title       [33m$ver[0m"
 --- /dev/null
-+++ b/dts/upstream/src/arm64/airoha/an7581-nokia-xg-040g-md.dts
-@@ -0,0 +1,99 @@
++++ b/arch/arm/dts/an7583-nokia-xg-040g-mf.dts
+@@ -0,0 +1,97 @@
 +// SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
 +/dts-v1/;
 +
 +#include <dt-bindings/leds/common.h>
 +#include <dt-bindings/gpio/gpio.h>
 +#include <dt-bindings/input/input.h>
-+#include "en7581.dtsi"
++#include "an7583.dtsi"
 +
 +/ {
-+	model = "Nokia XG-040G-MD";
-+	compatible = "nokia,xg-040g-md",
-+		     "airoha,an7581",
-+		     "airoha,en7581";
++	model = "Nokia XG-040G-MF";
++	compatible = "nokia,xg-040g-mf", "airoha,an7583";
 +
 +	chosen {
 +		bootargs = "console=ttyS0,115200 earlycon";
@@ -224,7 +227,7 @@
 +		button-0 {
 +			label = "reset";
 +			linux,code = <KEY_RESTART>;
-+			gpios = <&en7581_pinctrl 0 GPIO_ACTIVE_LOW>;
++			gpios = <&an7583_pinctrl 0 GPIO_ACTIVE_LOW>;
 +		};
 +	};
 +
@@ -232,33 +235,33 @@
 +		compatible = "gpio-leds";
 +
 +		led-0 {
-+			label = "green:power";
-+			gpios = <&en7581_pinctrl 17 GPIO_ACTIVE_LOW>;
++			label = "green:wan";
++			gpios = <&an7583_pinctrl 6 GPIO_ACTIVE_LOW>;
 +		};
 +
 +		led-1 {
-+			label = "green:wan";
-+			gpios = <&en7581_pinctrl 18 GPIO_ACTIVE_LOW>;
++			label = "green:online";
++			gpios = <&an7583_pinctrl 7 GPIO_ACTIVE_LOW>;
 +		};
 +
 +		led-2 {
-+			label = "red:wan";
-+			gpios = <&en7581_pinctrl 19 GPIO_ACTIVE_LOW>;
++			label = "green:power";
++			gpios = <&an7583_pinctrl 25 GPIO_ACTIVE_LOW>;
 +		};
 +
 +		led-3 {
-+			label = "green:wan-online";
-+			gpios = <&en7581_pinctrl 20 GPIO_ACTIVE_LOW>;
++			label = "green:usb-1";
++			gpios = <&an7583_pinctrl 26 GPIO_ACTIVE_LOW>;
 +		};
 +
 +		led-4 {
-+			label = "green:usb-2";
-+			gpios = <&en7581_pinctrl 34 GPIO_ACTIVE_LOW>;
++			label = "red:wan";
++			gpios = <&an7583_pinctrl 27 GPIO_ACTIVE_LOW>;
 +		};
 +
 +		led-5 {
-+			label = "green:usb-1";
-+			gpios = <&en7581_pinctrl 35 GPIO_ACTIVE_LOW>;
++			label = "green:usb-2";
++			gpios = <&an7583_pinctrl 33 GPIO_ACTIVE_LOW>;
 +		};
 +	};
 +};
@@ -288,16 +291,6 @@
 +&i2c0 {
 +	status = "okay";
 +};
-+
-+&eth {
-+	status = "okay";
-+};
---- /dev/null
-+++ b/arch/arm/dts/an7581-nokia-xg-040g-md-u-boot.dtsi
-@@ -0,0 +1,7 @@
-+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+
-+#include "an7581-u-boot.dtsi"
 +
 +&gdm1 {
 +	status = "okay";
