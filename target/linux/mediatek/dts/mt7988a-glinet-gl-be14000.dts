@@ -299,12 +299,14 @@
 		interrupt-parent = <&pio>;
 		interrupts = <3 IRQ_TYPE_LEVEL_LOW>;
 
+		motorcomm,mdi-swap = <0x0780>;
+
 		ports {
 			#address-cells = <1>;
 			#size-cells = <0>;
 
 			/*
-			 * The driver puts the four integral GbE PHYs on ports
+			 * The driver puts the four YT8824 2.5G PHYs on ports
 			 * 4 to 7 and leaves ports 0 and 8 as serdes, which is
 			 * what internal_mask 0x1f1 and yt922x_dsa_phylink_get_caps()
 			 * describe. The vendor tree numbered the same sockets
