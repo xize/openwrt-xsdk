@@ -8,6 +8,7 @@ PKG_BUILD_DEPENDS:=!(TARGET_ramips||TARGET_mediatek_mt7623):arm-trusted-firmware
 # Boards that drive the MT7987 built-in 2.5G PHY link its firmware into U-Boot,
 # so the blobs linux-firmware stages have to exist before this package builds.
 PKG_BUILD_DEPENDS+= PACKAGE_mt7987-2p5g-phy-firmware:linux-firmware
+PKG_PARALLEL_VARIANTS:=1
 
 ifdef CONFIG_TARGET_ramips
 UBOOT_USE_INTREE_DTC:=1
