@@ -1,0 +1,12 @@
+#!/bin/sh
+
+if [ "$(uci -q get xsdk.@factory[0].init)" != "1" ];
+then
+	touch /etc/config/xsdk
+	uci add xsdk factory
+	uci set xsdk.@factory[0].init='1'
+	uci commit xsdk
+fi
+
+exit 0
+
