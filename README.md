@@ -1,3 +1,11 @@
+## NOTE to self
+this is an orphaned repository with unrelated histories to the main branch of xsdk, **DO NOT MERGE IN MAIN**.
+
+the branch base is based on https://github.com/JiaY-shi/openwrt/tree/flint4-support-blogic-pr with upstreamed OpenWrt main branch commits and not on the direct base of https://github.com/openwrt/openwrt which the xsdk is.
+
+when support has been merged in mainline OpenWrt this branch will be archived and we continue tracking and using the main branch.
+
+
 ![OpenWrt logo](include/logo.png)
 
 OpenWrt Project is a Linux operating system targeting embedded devices. Instead
