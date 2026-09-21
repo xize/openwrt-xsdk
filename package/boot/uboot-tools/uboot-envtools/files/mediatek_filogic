@@ -42,6 +42,7 @@ h3c,magic-nx30-pro|\
 imou,hx21|\
 jcg,q30-pro|\
 konka,komi-a31|\
+mercusys,mr85x-ubi|\
 mercusys,mr90x-v1-ubi|\
 netcore,n60|\
 netcore,n60-pro|\
@@ -100,6 +101,7 @@ bananapi,bpi-r3-mini|\
 bananapi,bpi-r4|\
 bananapi,bpi-r4-lite|\
 bananapi,bpi-r4-poe|\
+bananapi,bpi-r4-pro-8x|\
 cmcc,rax3000m|\
 jdcloud,re-cp-03)
 	. /lib/upgrade/fit.sh
@@ -150,7 +152,14 @@ gatonetworks,gdsp)
 glinet,gl-mt3000)
 	ubootenv_add_uci_config "/dev/mtd1" "0x0" "0x80000" "0x20000"
 	;;
-jiorouter,ax6000-jidu6101)
+jiorouter,ax6000-jidu6101|\
+jiorouter,ax6000-jidu6j01)
+	. /lib/upgrade/nand.sh
+	envubi=$(nand_find_ubi ubi)
+	envdev=/dev/$(nand_find_volume "$envubi" u-boot-env)
+	ubootenv_add_uci_config "$envdev" "0x0" "0x80000" "0x1f000" "5"
+	;;
+ltc,vl7m19k)
 	. /lib/upgrade/nand.sh
 	envubi=$(nand_find_ubi ubi)
 	envdev=/dev/$(nand_find_volume "$envubi" u-boot-env)
@@ -160,6 +169,8 @@ openembed,som7981)
 	ubootenv_add_uci_config "/dev/mtd1" "0x0" "0x80000" "0x80000"
 	ubootenv_add_uci_sys_config "/dev/mtd3" "0x0" "0x100000" "0x100000"
 	;;
+smartrg,sdg-8712|\
+smartrg,sdg-8732|\
 smartrg,sdg-8733|\
 smartrg,sdg-8733a|\
 smartrg,sdg-8734)
