@@ -1,5 +1,5 @@
 ## NOTE to self
-this is an orphaned repository with unrelated histories to the main branch of xsdk, **DO NOT MERGE IN MAIN**.
+this is an orphaned repository with unrelated histories to the main branch of xsdk, **DO NOT MERGE IN MAIN** or at minimum use ``git checkout origin/flint4-beta -- file/folder`` for a selective checkout in a different branch.
 
 the branch base is based on https://github.com/JiaY-shi/openwrt/tree/flint4-support-blogic-pr with upstreamed OpenWrt main branch commits and not on the direct base of https://github.com/openwrt/openwrt which the xsdk is.
 
