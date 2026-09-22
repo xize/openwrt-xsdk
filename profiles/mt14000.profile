@@ -83,6 +83,7 @@ CONFIG_PACKAGE_kmod-ipt-core=y
 CONFIG_PACKAGE_kmod-iptables=y
 CONFIG_PACKAGE_kmod-iptunnel=y
 CONFIG_PACKAGE_kmod-iptunnel4=y
+CONFIG_PACKAGE_kmod-libphy=y
 CONFIG_PACKAGE_kmod-mt76=y
 CONFIG_PACKAGE_kmod-mt7603=y
 CONFIG_PACKAGE_kmod-mt76x02-common=y
@@ -93,6 +94,7 @@ CONFIG_PACKAGE_kmod-nf-ipt=y
 CONFIG_PACKAGE_kmod-nft-bridge=y
 CONFIG_PACKAGE_kmod-nft-compat=y
 # CONFIG_PACKAGE_kmod-nls-base is not set
+CONFIG_PACKAGE_kmod-phy-mediatek-2p5g=y
 # CONFIG_PACKAGE_kmod-sched-act-vlan is not set
 # CONFIG_PACKAGE_kmod-sched-bpf is not set
 CONFIG_PACKAGE_kmod-sched-cake=y
@@ -171,7 +173,7 @@ CONFIG_PACKAGE_luci-theme-aurora=y
 CONFIG_PACKAGE_luci-theme-bootstrap=y
 CONFIG_PACKAGE_luci-theme-footstrap=y
 # CONFIG_PACKAGE_mkf2fs is not set
-# CONFIG_PACKAGE_mt7988-wo-firmware is not set
+CONFIG_PACKAGE_mt7988-2p5g-phy-firmware=y
 CONFIG_PACKAGE_nextdns=y
 CONFIG_PACKAGE_pbr=y
 CONFIG_PACKAGE_px5g-mbedtls=y
