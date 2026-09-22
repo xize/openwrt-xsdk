@@ -95,6 +95,7 @@ CONFIG_PACKAGE_kmod-nft-bridge=y
 CONFIG_PACKAGE_kmod-nft-compat=y
 # CONFIG_PACKAGE_kmod-nls-base is not set
 CONFIG_PACKAGE_kmod-phy-mediatek-2p5g=y
+CONFIG_PACKAGE_kmod-phy-motorcomm=y
 # CONFIG_PACKAGE_kmod-sched-act-vlan is not set
 # CONFIG_PACKAGE_kmod-sched-bpf is not set
 CONFIG_PACKAGE_kmod-sched-cake=y
@@ -173,6 +174,7 @@ CONFIG_PACKAGE_luci-theme-aurora=y
 CONFIG_PACKAGE_luci-theme-bootstrap=y
 CONFIG_PACKAGE_luci-theme-footstrap=y
 # CONFIG_PACKAGE_mkf2fs is not set
+CONFIG_PACKAGE_mt7987-2p5g-phy-firmware=y
 CONFIG_PACKAGE_mt7988-2p5g-phy-firmware=y
 CONFIG_PACKAGE_nextdns=y
 CONFIG_PACKAGE_pbr=y
