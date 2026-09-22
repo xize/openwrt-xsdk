@@ -2,15 +2,11 @@ CONFIG_TARGET_mediatek=y
 CONFIG_TARGET_mediatek_filogic=y
 CONFIG_TARGET_mediatek_filogic_DEVICE_glinet_gl-be14000=y
 # CONFIG_DISPLAY_SUPPORT is not set
-# CONFIG_DRIVER_11AC_SUPPORT is not set
-# CONFIG_DRIVER_11AX_SUPPORT is not set
-# CONFIG_DRIVER_11BE_SUPPORT is not set
 # CONFIG_FFMPEG_LAME is not set
 CONFIG_FFMPEG_SHINE=y
 CONFIG_HTOP_LMSENSORS=y
 # CONFIG_KERNEL_IO_URING is not set
 CONFIG_KERNEL_KEXEC=y
-# CONFIG_KERNEL_PAGE_POOL is not set
 CONFIG_LIBCURL_COOKIES=y
 CONFIG_LIBCURL_FILE=y
 CONFIG_LIBCURL_FTP=y
@@ -67,32 +63,18 @@ CONFIG_PACKAGE_drill=y
 CONFIG_PACKAGE_ebtables-nft=y
 # CONFIG_PACKAGE_f2fsck is not set
 CONFIG_PACKAGE_gawk=y
-# CONFIG_PACKAGE_hostapd-common is not set
 CONFIG_PACKAGE_htop=y
 CONFIG_PACKAGE_ip-full=y
 CONFIG_PACKAGE_iperf3-ssl=y
 CONFIG_PACKAGE_irqbalance=y
-# CONFIG_PACKAGE_iw is not set
 CONFIG_PACKAGE_kmod-amneziawg=y
-# CONFIG_PACKAGE_kmod-cfg80211 is not set
-# CONFIG_PACKAGE_kmod-crypto-ccm is not set
-# CONFIG_PACKAGE_kmod-crypto-cmac is not set
-# CONFIG_PACKAGE_kmod-crypto-ctr is not set
-# CONFIG_PACKAGE_kmod-crypto-gcm is not set
-# CONFIG_PACKAGE_kmod-crypto-gf128 is not set
-# CONFIG_PACKAGE_kmod-crypto-ghash is not set
 CONFIG_PACKAGE_kmod-crypto-kpp=y
 CONFIG_PACKAGE_kmod-crypto-lib-chacha20=y
 CONFIG_PACKAGE_kmod-crypto-lib-chacha20poly1305=y
 CONFIG_PACKAGE_kmod-crypto-lib-curve25519=y
 CONFIG_PACKAGE_kmod-crypto-lib-poly1305=y
-# CONFIG_PACKAGE_kmod-crypto-rng is not set
-# CONFIG_PACKAGE_kmod-crypto-seqiv is not set
-# CONFIG_PACKAGE_kmod-crypto-sha3 is not set
 CONFIG_PACKAGE_kmod-ebtables=y
-# CONFIG_PACKAGE_kmod-hwmon-core is not set
 # CONFIG_PACKAGE_kmod-hwmon-pwmfan is not set
-# CONFIG_PACKAGE_kmod-i2c-core is not set
 CONFIG_PACKAGE_kmod-ifb=y
 # CONFIG_PACKAGE_kmod-input-core is not set
 # CONFIG_PACKAGE_kmod-input-evdev is not set
@@ -101,9 +83,11 @@ CONFIG_PACKAGE_kmod-ipt-core=y
 CONFIG_PACKAGE_kmod-iptables=y
 CONFIG_PACKAGE_kmod-iptunnel=y
 CONFIG_PACKAGE_kmod-iptunnel4=y
-# CONFIG_PACKAGE_kmod-mac80211 is not set
-# CONFIG_PACKAGE_kmod-mt7996-233-firmware is not set
-# CONFIG_PACKAGE_kmod-mt7996e is not set
+CONFIG_PACKAGE_kmod-mt76=y
+CONFIG_PACKAGE_kmod-mt7603=y
+CONFIG_PACKAGE_kmod-mt76x02-common=y
+CONFIG_PACKAGE_kmod-mt76x2=y
+CONFIG_PACKAGE_kmod-mt76x2-common=y
 CONFIG_PACKAGE_kmod-nf-conntrack-netlink=y
 CONFIG_PACKAGE_kmod-nf-ipt=y
 CONFIG_PACKAGE_kmod-nft-bridge=y
@@ -150,6 +134,8 @@ CONFIG_PACKAGE_libnghttp2=y
 CONFIG_PACKAGE_libnl-core=y
 CONFIG_PACKAGE_libnl-route=y
 CONFIG_PACKAGE_libopenssl=y
+CONFIG_PACKAGE_libopenssl-conf=y
+CONFIG_PACKAGE_libopenssl-legacy=y
 CONFIG_PACKAGE_libpcap=y
 CONFIG_PACKAGE_libpcre2=y
 CONFIG_PACKAGE_libreadline=y
@@ -205,15 +191,12 @@ CONFIG_PACKAGE_terminfo=y
 CONFIG_PACKAGE_ucode-mod-html=y
 CONFIG_PACKAGE_ucode-mod-log=y
 CONFIG_PACKAGE_ucode-mod-math=y
-# CONFIG_PACKAGE_ucode-mod-nl80211 is not set
-# CONFIG_PACKAGE_ucode-mod-rtnl is not set
 CONFIG_PACKAGE_uhttpd=y
 CONFIG_PACKAGE_uhttpd-mod-ubus=y
 CONFIG_PACKAGE_wget-ssl=y
-# CONFIG_PACKAGE_wifi-scripts is not set
 CONFIG_PACKAGE_wireguard-tools=y
-# CONFIG_PACKAGE_wireless-regdb is not set
 # CONFIG_PACKAGE_wpad-basic-mbedtls is not set
+CONFIG_PACKAGE_wpad-mesh-openssl=y
 CONFIG_PACKAGE_xtables-nft=y
 CONFIG_PCRE2_JIT_ENABLED=y
 CONFIG_TARGET_INITRAMFS_COMPRESSION_NONE=y
