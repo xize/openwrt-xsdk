@@ -123,7 +123,7 @@
 #define RTL931X_VLAN_PORT_TAG_ITPID_IDX_MASK			GENMASK(2, 1)
 #define RTL931X_VLAN_PORT_TAG_ITPID_KEEP_MASK			GENMASK(0, 0)
 
-static void otto_vlan_port_pvid_set(struct rtl838x_switch_priv *priv,
+static void otto_vlan_port_pvid_set(struct otto_dsa_priv *priv,
 				    int port, int pvid)
 {
 	/* Set both inner and outer PVID of the port */
@@ -138,7 +138,7 @@ static void otto_vlan_port_pvid_set(struct rtl838x_switch_priv *priv,
 }
 
 /* Initialize all VLANS */
-void otto_vlan_setup(struct rtl838x_switch_priv *priv)
+void otto_vlan_setup(struct otto_dsa_priv *priv)
 {
 	struct otto_vlan_info info = {
 		.l2_tunnel_list_id = -1,
@@ -286,7 +286,7 @@ void otto_vlan_838x_port_pvid_set(int port, enum pbvlan_type type, int pvid)
 }
 
 void
-otto_vlan_838x_profile_dump(struct rtl838x_switch_priv *priv, int idx)
+otto_vlan_838x_profile_dump(struct otto_dsa_priv *priv, int idx)
 {
 	struct rtldsa_vlan_profile p;
 
@@ -406,7 +406,7 @@ void otto_vlan_839x_profile_setup(int profile)
 }
 
 void
-otto_vlan_839x_profile_dump(struct rtl838x_switch_priv *priv, int idx)
+otto_vlan_839x_profile_dump(struct otto_dsa_priv *priv, int idx)
 {
 	struct rtldsa_vlan_profile p;
 
@@ -522,7 +522,7 @@ otto_vlan_930x_profile_get(int idx, struct rtldsa_vlan_profile *profile)
 }
 
 void
-otto_vlan_930x_profile_dump(struct rtl838x_switch_priv *priv, int idx)
+otto_vlan_930x_profile_dump(struct otto_dsa_priv *priv, int idx)
 {
 	struct rtldsa_vlan_profile p;
 
@@ -635,7 +635,7 @@ otto_vlan_931x_profile_get(int idx, struct rtldsa_vlan_profile *profile)
 }
 
 void
-otto_vlan_931x_profile_dump(struct rtl838x_switch_priv *priv, int idx)
+otto_vlan_931x_profile_dump(struct otto_dsa_priv *priv, int idx)
 {
 	struct rtldsa_vlan_profile p;
 
@@ -780,7 +780,7 @@ int otto_vlan_port_filtering(struct dsa_switch *ds, int port,
 			     bool vlan_filtering,
 			     struct netlink_ext_ack *extack)
 {
-	struct rtl838x_switch_priv *priv = ds->priv;
+	struct otto_dsa_priv *priv = ds->priv;
 
 	pr_debug("%s: port %d\n", __func__, port);
 	mutex_lock(&priv->reg_mutex);
@@ -821,7 +821,9 @@ int otto_vlan_port_add(struct dsa_switch *ds, int port,
 		       struct netlink_ext_ack *extack)
 {
 	struct otto_vlan_info info;
-	struct rtl838x_switch_priv *priv = ds->priv;
+	struct otto_dsa_priv *priv = ds->priv;
+	struct net_device *bridge_dev;
+	u16 proto;
 
 	pr_debug("%s port %d, vid %d, flags %x\n",
 		 __func__, port, vlan->vid, vlan->flags);
@@ -833,6 +835,19 @@ int otto_vlan_port_add(struct dsa_switch *ds, int port,
 	if (vlan->vid >= MAX_VLANS) {
 		dev_err(priv->dev, "VLAN out of range: %d", vlan->vid);
 		return -ENOTSUPP;
+	}
+
+	/*
+	 * The hardware can handle 802.1ad. The driver just does not program
+	 * the inner and outer tag handling for it yet. A host VLAN arrives on
+	 * the CPU port, which has no bridge, and names the bridge itself.
+	 */
+	bridge_dev = vlan->obj.orig_dev;
+	if (!bridge_dev || !netif_is_bridge_master(bridge_dev))
+		bridge_dev = dsa_port_bridge_dev_get(dsa_to_port(ds, port));
+	if (bridge_dev && !br_vlan_get_proto(bridge_dev, &proto) && proto != ETH_P_8021Q) {
+		NL_SET_ERR_MSG_MOD(extack, "802.1ad bridges are not supported");
+		return -EINVAL;
 	}
 
 	mutex_lock(&priv->reg_mutex);
@@ -887,7 +902,7 @@ int otto_vlan_port_del(struct dsa_switch *ds, int port,
 		       const struct switchdev_obj_port_vlan *vlan)
 {
 	struct otto_vlan_info info;
-	struct rtl838x_switch_priv *priv = ds->priv;
+	struct otto_dsa_priv *priv = ds->priv;
 	u16 pvid;
 
 	pr_debug("%s: port %d, vid %d, flags %x\n",
@@ -938,7 +953,7 @@ int otto_vlan_port_del(struct dsa_switch *ds, int port,
 
 int otto_vlan_port_fast_age(struct dsa_switch *ds, int port, u16 vid)
 {
-	struct rtl838x_switch_priv *priv = ds->priv;
+	struct otto_dsa_priv *priv = ds->priv;
 	int ret;
 
 	if (!priv->r->fast_age)
@@ -954,7 +969,7 @@ int otto_vlan_port_fast_age(struct dsa_switch *ds, int port, u16 vid)
 int otto_vlan_msti_set(struct dsa_switch *ds, struct dsa_bridge bridge,
 		       const struct switchdev_vlan_msti *msti)
 {
-	struct rtl838x_switch_priv *priv = ds->priv;
+	struct otto_dsa_priv *priv = ds->priv;
 	struct otto_vlan_info info;
 	u16 mst_slot_old;
 	int mst_slot;

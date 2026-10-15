@@ -9,6 +9,7 @@
 #include <linux/etherdevice.h>
 #include <linux/if_vlan.h>
 #include <linux/inetdevice.h>
+#include <linux/mfd/syscon.h>
 #include <linux/platform_device.h>
 #include <linux/rhashtable.h>
 #include <linux/of_net.h>
@@ -149,7 +150,7 @@ static int rtldsa_mdio_loaded(void)
 	return 0;
 }
 
-static int rtldsa_ports_probe(struct rtl838x_switch_priv *priv)
+static int rtldsa_ports_probe(struct otto_dsa_priv *priv)
 {
 	struct device_node *dn, *phy_node, *led_node;
 	u32 pn;
@@ -202,7 +203,7 @@ static int rtldsa_ports_probe(struct rtl838x_switch_priv *priv)
 
 // Currently Unused
 // /* Allocate a 64 bit octet counter located in the LOG HW table */
-// static int rtl83xx_octet_cntr_alloc(struct rtl838x_switch_priv *priv)
+// static int rtl83xx_octet_cntr_alloc(struct otto_dsa_priv *priv)
 // {
 // 	int idx;
 
@@ -220,7 +221,7 @@ static int rtldsa_ports_probe(struct rtl838x_switch_priv *priv)
 // 	return idx;
 // }
 
-int rtl83xx_port_is_under(const struct net_device *dev, struct rtl838x_switch_priv *priv)
+int rtl83xx_port_is_under(const struct net_device *dev, struct otto_dsa_priv *priv)
 {
 	/* Is the lower network device a DSA user network device of our RTL930X-switch?
 	 * Unfortunately we cannot just follow dev->dsa_prt as this is only set for the
@@ -244,7 +245,7 @@ int rtl83xx_port_is_under(const struct net_device *dev, struct rtl838x_switch_pr
 
 static irqreturn_t rtldsa_switch_irq(int irq, void *dev_id)
 {
-	struct rtl838x_switch_priv *priv;
+	struct otto_dsa_priv *priv;
 	struct dsa_switch *ds = dev_id;
 	u64 link, ports;
 
@@ -298,7 +299,7 @@ static int rtldsa_ethernet_loaded(struct platform_device *pdev)
 
 static int rtl83xx_sw_probe(struct platform_device *pdev)
 {
-	struct rtl838x_switch_priv *priv;
+	struct otto_dsa_priv *priv;
 	struct device *dev = &pdev->dev;
 	const struct rtldsa_config *r;
 	u64 bpdu_mask;
@@ -327,8 +328,12 @@ static int rtl83xx_sw_probe(struct platform_device *pdev)
 		return -ENOMEM;
 
 	priv->r = r;
-	memset(priv->lag_primary, -1, sizeof(priv->lag_primary));
+	priv->map = syscon_node_to_regmap(dev->of_node);
+	if (IS_ERR(priv->map))
+		return dev_err_probe(dev, PTR_ERR(priv->map),
+				     "no switch register map\n");
 
+	memset(priv->lag_primary, -1, sizeof(priv->lag_primary));
 	priv->l2_uc_map = devm_kcalloc(dev, r->fib_entries, sizeof(*priv->l2_uc_map),
 				       GFP_KERNEL);
 	if (!priv->l2_uc_map)
@@ -456,7 +461,7 @@ err_register_switch:
 
 static void rtl83xx_sw_remove(struct platform_device *pdev)
 {
-	struct rtl838x_switch_priv *priv = platform_get_drvdata(pdev);
+	struct otto_dsa_priv *priv = platform_get_drvdata(pdev);
 
 	if (!priv)
 		return;
