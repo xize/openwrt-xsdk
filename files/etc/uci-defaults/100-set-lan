@@ -1,0 +1,10 @@
+#!/bin/sh
+
+if [ "$(uci -q get xsdk.@factory[0].enabled)" != "1" ];
+then
+	uci set network.lan.ipaddr='10.234.53.1/24'
+	uci commit network
+fi
+
+exit 0
+
