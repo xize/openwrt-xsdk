@@ -5,9 +5,12 @@ PKG_VERSION:=2026.07
 PKG_RELEASE:=3
 PKG_HASH:=78e8bfc382fe388f9b55aa1daf8c563522a037779b5d4c349d1415e381f1243e
 PKG_BUILD_DEPENDS:=!(TARGET_ramips||TARGET_mediatek_mt7623):arm-trusted-firmware-tools/host
+<<<<<<< HEAD
 # Boards that drive the MT7987 built-in 2.5G PHY link its firmware into U-Boot,
 # so the blobs linux-firmware stages have to exist before this package builds.
 PKG_BUILD_DEPENDS+= PACKAGE_mt7987-2p5g-phy-firmware:linux-firmware
+=======
+>>>>>>> bcb16b6347251f09a99c875c92db14a20c9499a3
 PKG_PARALLEL_VARIANTS:=1
 
 ifdef CONFIG_TARGET_ramips
