@@ -10,6 +10,7 @@
 #include <asm/mach-rtl-otto/mach-rtl-otto.h>
 
 #include "pie.h"
+#include "qos.h"
 #include "rtl-otto.h"
 #include "stats.h"
 #include "tc.h"
@@ -260,7 +261,7 @@ static int otto_tc_add_flow(struct otto_dsa_priv *priv, struct flow_cls_offload 
 {
 	struct flow_rule *rule = flow_cls_offload_flow_rule(f);
 	const struct flow_action_entry *act;
-	int i, err;
+	int i, err, port;
 
 	dev_dbg(priv->dev, "adding flower rule\n");
 
@@ -340,10 +341,30 @@ static int otto_tc_add_flow(struct otto_dsa_priv *priv, struct flow_cls_offload 
 
 		case FLOW_ACTION_MIRRED:
 			dev_dbg(priv->dev, "action MIRRED\n");
-			err = otto_tc_parse_fwd(priv, act, flow);
-			if (err)
+			if (!priv->r->pie_mirror_group) {
+				err = otto_tc_parse_fwd(priv, act, flow);
+				if (err)
+					return err;
+				flow->rule.fwd_act = PIE_ACT_COPY_TO_PORT;
+				break;
+			}
+			port = rtl83xx_port_is_under(act->dev, priv);
+			if (port < 0) {
+				netdev_info(act->dev, "not a DSA port on this switch\n");
+				return -EINVAL;
+			}
+			/* A copy through the forwarding action would take over the
+			 * forwarding decision of the L3 rules in later blocks.
+			 */
+			err = rtldsa_mirror_group_get(priv, port);
+			if (err < 0) {
+				if (err == -ENOSPC)
+					NL_SET_ERR_MSG_MOD(f->common.extack,
+							   "all four mirror groups are in use");
 				return err;
-			flow->rule.fwd_act = PIE_ACT_COPY_TO_PORT;
+			}
+			flow->rule.mir_sel = true;
+			flow->rule.mir_data = err;
 			break;
 
 		default:
@@ -408,6 +429,8 @@ static void otto_tc_flow_free(void *ptr, void *arg)
 
 	priv->r->pie_rule_rm(priv, &flow->rule);
 	otto_tc_packet_cntr_put(priv, flow->rule.packet_cntr);
+	if (flow->rule.mir_sel)
+		rtldsa_mirror_group_put(priv, flow->rule.mir_data);
 
 	/* Readers may still hold an RCU-protected reference after the
 	 * object has been removed from the hash table.
@@ -521,6 +544,8 @@ static int otto_tc_configure_flower(struct otto_dsa_priv *priv,
 out_remove:
 	rhashtable_remove_fast(&priv->tc_ht, &flow->node, tc_ht_params);
 	otto_tc_packet_cntr_put(priv, flow->rule.packet_cntr);
+	if (flow->rule.mir_sel)
+		rtldsa_mirror_group_put(priv, flow->rule.mir_data);
 	/* published in tc_ht above; a concurrent reader may still hold a ref */
 	kfree_rcu(flow, rcu_head);
 	goto out_err;
@@ -562,6 +587,8 @@ static int otto_tc_delete_flower(struct otto_dsa_priv *priv,
 
 	priv->r->pie_rule_rm(priv, &flow->rule);
 	otto_tc_packet_cntr_put(priv, flow->rule.packet_cntr);
+	if (flow->rule.mir_sel)
+		rtldsa_mirror_group_put(priv, flow->rule.mir_data);
 
 	kfree_rcu(flow, rcu_head);
 
@@ -936,4 +963,90 @@ int otto_tc_cls_flower_stats(struct dsa_switch *ds, int port,
 		return 0;
 
 	return ret;
+}
+
+/* Band 0 is the band ETS serves first and queue 7 the queue the hardware serves first.
+ * The hardware maps priority n to queue n for the whole switch, so only the priomap
+ * that says the same can be offloaded.
+ */
+static int otto_tc_setup_qdisc_ets(struct otto_dsa_priv *priv, int port,
+				   struct tc_ets_qopt_offload *qopt)
+{
+	struct tc_ets_qopt_offload_replace_params *p = &qopt->replace_params;
+	struct rtldsa_port *pp = &priv->ports[port];
+	bool offload;
+
+	if (!priv->r->queue_sched_set || qopt->parent != TC_H_ROOT)
+		return -EOPNOTSUPP;
+
+	switch (qopt->command) {
+	case TC_ETS_REPLACE:
+		if (pp->ets_handle != qopt->handle)
+			pp->ets_children = 0;
+		pp->ets_children &= GENMASK(p->bands - 1, 0);
+		pp->ets_handle = qopt->handle;
+		pp->ets_offloadable = p->bands == MAX_PRIOS;
+		for (int band = 0; pp->ets_offloadable && band < MAX_PRIOS; band++) {
+			int queue = MAX_PRIOS - 1 - band;
+
+			pp->ets_offloadable = p->priomap[queue] == band &&
+					      (!p->quanta[band] || p->weights[band]);
+			pp->ets_weights[queue] = p->quanta[band] ? p->weights[band] : 0;
+		}
+		break;
+	case TC_ETS_DESTROY:
+		if (pp->ets_handle != qopt->handle)
+			return 0;
+		pp->ets_handle = 0;
+		pp->ets_offloadable = false;
+		break;
+	case TC_ETS_STATS:
+		if (pp->ets_handle != qopt->handle)
+			return -EOPNOTSUPP;
+		return pp->ets_offloadable && !pp->ets_children ? 0 : -EOPNOTSUPP;
+	case TC_ETS_GRAFT:
+		if (pp->ets_handle != qopt->handle)
+			return -EOPNOTSUPP;
+		/* the kernel keeps a refused child, so the qdisc stays out of the hardware
+		 * while any band has one
+		 */
+		if (qopt->graft_params.child_handle)
+			pp->ets_children |= BIT(qopt->graft_params.band);
+		else
+			pp->ets_children &= ~BIT(qopt->graft_params.band);
+		break;
+	default:
+		return -EOPNOTSUPP;
+	}
+
+	offload = pp->ets_offloadable && !pp->ets_children;
+
+	mutex_lock(&priv->reg_mutex);
+
+	for (int queue = 0; offload && queue < MAX_PRIOS; queue++) {
+		if (pp->ets_weights[queue])
+			priv->r->queue_sched_set(priv, port, queue, pp->ets_weights[queue], false);
+		else
+			priv->r->queue_sched_set(priv, port, queue, 1, true);
+	}
+
+	if (!offload)
+		otto_qos_queue_sched_reset(priv, port);
+
+	mutex_unlock(&priv->reg_mutex);
+
+	return (offload || qopt->command == TC_ETS_DESTROY) ? 0 : -EOPNOTSUPP;
+}
+
+int otto_tc_port_setup_tc(struct dsa_switch *ds, int port, enum tc_setup_type type,
+			  void *type_data)
+{
+	struct otto_dsa_priv *priv = ds->priv;
+
+	switch (type) {
+	case TC_SETUP_QDISC_ETS:
+		return otto_tc_setup_qdisc_ets(priv, port, type_data);
+	default:
+		return -EOPNOTSUPP;
+	}
 }
