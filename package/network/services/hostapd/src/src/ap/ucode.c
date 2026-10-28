@@ -745,12 +745,8 @@ uc_hostapd_iface_stop(uc_vm_t *vm, size_t nargs)
 	if (iface->state != HAPD_IFACE_ENABLED)
 		uc_hostapd_disable_iface(iface);
 
-	for (i = 0; i < iface->num_bss; i++) {
-		struct hostapd_data *hapd = iface->bss[i];
-
-		hostapd_drv_stop_ap(hapd);
-		hapd->beacon_set_done = 0;
-	}
+	for (i = 0; i < iface->num_bss; i++)
+		hostapd_bss_stop_ap(iface->bss[i]);
 
 	return NULL;
 }
@@ -838,6 +834,10 @@ out:
 
 	for (i = 0; i < iface->num_bss; i++) {
 		struct hostapd_data *hapd = iface->bss[i];
+
+		/* A link that an AP removal took out stays here, stopped */
+		if (!hapd->started)
+			continue;
 
 		hostapd_set_freq(hapd, conf->hw_mode, iface->freq,
 				 conf->channel,
@@ -1026,7 +1026,7 @@ uc_hostapd_bss_rename(uc_vm_t *vm, size_t nargs)
 	for (sta = hapd->sta_list; sta; sta = sta->next) {
 		char cur_name[IFNAMSIZ + 1], new_name[IFNAMSIZ + 1];
 
-		if (!(sta->flags & WLAN_STA_WDS) || sta->pending_wds_enable)
+		if (!sta->wds_vlan)
 			continue;
 
 		snprintf(cur_name, sizeof(cur_name), "%s.sta%d", prev_ifname, sta->aid);
@@ -1542,6 +1542,12 @@ void hostapd_ucode_free(void)
 void hostapd_ucode_free_iface(struct hostapd_iface *iface)
 {
 	ucv_put(wpa_ucode_registry_remove(iface_registry, iface->ucode.idx));
+}
+
+void hostapd_ucode_forget_bss(struct hostapd_data *hapd)
+{
+	ucv_put(wpa_ucode_registry_remove(bss_registry, hapd->ucode.idx));
+	hapd->ucode.idx = 0;
 }
 
 void hostapd_ucode_bss_cb(struct hostapd_data *hapd, const char *type)

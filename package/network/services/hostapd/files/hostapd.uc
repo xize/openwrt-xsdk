@@ -18,6 +18,7 @@ hostapd.data.config = {};
 hostapd.data.pending_config = {};
 hostapd.data.apsta_freq = {};
 hostapd.data.apsta_stopped = {};
+hostapd.data.link_reload = {};
 
 hostapd.data.file_fields = {
 	vlan_file: true,
@@ -345,6 +346,8 @@ function iface_pending_next(ret, data)
 			}
 		} catch(e) {
 			hostapd.printf(`Exception: ${e}\n${e.stacktrace[0].context}`);
+			iface_supplicant_start(cfg.phydev);
+			__iface_pending_next(cfg, "done");
 			return;
 		}
 		pending = !this.defer;
@@ -404,12 +407,19 @@ function csa_timer_cancel(name)
 	}
 }
 
+function iface_link_reload_cancel(name)
+{
+	hostapd.data.link_reload[name]?.timer.cancel();
+	delete hostapd.data.link_reload[name];
+}
+
 function iface_restart(phydev, config, old_config)
 {
 	let phy = phydev.name;
 	let pending = hostapd.data.pending_config[phy];
 
 	csa_timer_cancel(phy);
+	iface_link_reload_cancel(phy);
 
 	if (pending)
 		pending.abort();
@@ -831,15 +841,60 @@ function radio_base(radio)
 	});
 }
 
+// The Spatial Reuse Parameter Set of the radio. A running AP takes it with SET
+// and a Beacon update, and its BSS color through a color change announcement.
+const radio_sr_fields = [
+	"he_spr_sr_control", "he_spr_non_srg_obss_pd_max_offset",
+	"he_spr_srg_obss_pd_min_offset", "he_spr_srg_obss_pd_max_offset",
+	"he_spr_srg_bss_colors", "he_spr_srg_partial_bssid",
+];
+
+function radio_line_is_sr(line)
+{
+	let key = split(line, "=", 2)[0];
+
+	return key == "he_bss_color" || index(radio_sr_fields, key) >= 0;
+}
+
+function radio_sr_values(radio)
+{
+	let values = {};
+
+	for (let line in filter(radio.data, radio_line_is_sr)) {
+		let kv = split(line, "=", 2);
+		values[kv[0]] = kv[1];
+	}
+
+	return values;
+}
+
+// A change of the BSS color and the spatial reuse fields alone, on the same
+// channel, of a radio whose BSS color is enabled before and after.
+function radio_sr_change(old_radio, new_radio)
+{
+	let rest = (radio) => filter(radio_base(radio), (line) => !radio_line_is_sr(line));
+
+	return is_equal(rest(old_radio), rest(new_radio)) &&
+	       radio_sr_values(old_radio).he_bss_color != null &&
+	       radio_sr_values(new_radio).he_bss_color != null &&
+	       old_radio.channel == new_radio.channel &&
+	       is_equal(filter(old_radio.data, radio_line_is_chan),
+	                filter(new_radio.data, radio_line_is_chan));
+}
+
 function radio_reload_class(old_radio, new_radio)
 {
 	if (is_equal(old_radio, new_radio))
 		return "same";
 
-	// anything beyond channel/width, or the channel-follow flag flipping,
-	// needs a full restart
-	if (!is_equal(radio_base(old_radio), radio_base(new_radio)) ||
-	    (!old_radio.channel_follow) != (!new_radio.channel_follow))
+	if ((!old_radio.channel_follow) != (!new_radio.channel_follow))
+		return "restart";
+
+	if (radio_sr_change(old_radio, new_radio))
+		return "spatial_reuse";
+
+	// anything beyond channel/width needs a full restart
+	if (!is_equal(radio_base(old_radio), radio_base(new_radio)))
 		return "restart";
 
 	// base identical and apsta flag unchanged: only treat this as a channel
@@ -1037,6 +1092,56 @@ function iface_runs_channel(name, config)
 	       (!wanted.sec_channel || running.center_seg0_idx == wanted.center_seg0_idx);
 }
 
+const status_bss_color_re = /^he_bss_color=([0-9]+)$/;
+
+// hostapd leaves the configured color by itself after a color collision, so
+// the color it runs comes from STATUS. STATUS names no color while BSS Color
+// Disabled is set; the configured color stands in for it then.
+function iface_bss_color_running(bss, old)
+{
+	let m = match(bss.ctrl("STATUS") ?? "", status_bss_color_re);
+
+	return int(m ? m[1] : old.he_bss_color);
+}
+
+// The spatial reuse fields first and the color after: mac80211 refuses a
+// beacon update while a color change runs.
+function iface_spatial_reuse_apply(name, config, old_config)
+{
+	let iface = hostapd.interfaces[name];
+	let bss_list = values(hostapd.bss[name] ?? {});
+	if (!iface || iface.state() != "ENABLED" || !length(bss_list))
+		return false;
+
+	let old = radio_sr_values(old_config.radio);
+	let want = radio_sr_values(config.radio);
+	for (let key in radio_sr_fields) {
+		if (old[key] == want[key])
+			continue;
+
+		// An absent bitmap is empty, and an absent offset is one the SR
+		// Control field marks as not present.
+		let value = want[key] ?? (index(key, "_srg_bss_colors") > 0 ||
+		                          index(key, "_srg_partial_bssid") > 0 ? "" : "0");
+		if (bss_list[0].ctrl(`SET ${key} ${value}`) != "OK")
+			return false;
+	}
+
+	for (let bss in bss_list)
+		if (!bss.update_beacon())
+			return false;
+
+	// A requested colour above 63 asks for a random colour, which the running colour is.
+	let color = int(want.he_bss_color);
+	if (color <= 63 &&
+	    iface_bss_color_running(bss_list[0], old) != color &&
+	    bss_list[0].ctrl(`COLOR_CHANGE ${color}`) != "OK")
+		return false;
+
+	hostapd.printf(`Spatial reuse update on phy ${name}, BSS color ${want.he_bss_color}`);
+	return true;
+}
+
 function iface_reload_config(name, phydev, config, old_config)
 {
 	let phy = phydev.name;
@@ -1047,6 +1152,10 @@ function iface_reload_config(name, phydev, config, old_config)
 	switch (radio_reload_class(old_config.radio, config.radio)) {
 	case "restart":
 		return false;
+	case "spatial_reuse":
+		if (!iface_spatial_reuse_apply(name, config, old_config))
+			return false;
+		break;
 	case "channel":
 		if (iface_runs_channel(name, config))
 			break;
@@ -1237,8 +1346,9 @@ function iface_reload_config(name, phydev, config, old_config)
 		if (old_ifname == new_ifname)
 			continue;
 
+		// Short enough that "<tmp>.sta<aid>" of a WDS station fits IFNAMSIZ
 		if (hostapd.bss[name][new_ifname]) {
-			new_ifname = "tmp_" + substr(hostapd.sha1(new_ifname), 0, 8);
+			new_ifname = sprintf("tmp%d", i);
 			push(rename_list, i);
 		}
 
@@ -1427,8 +1537,11 @@ function iface_config_remove(name, old_config)
 {
 	let pending = hostapd.data.pending_config[name];
 
-	if (pending)
+	// an aborted setup can have stopped wpa_supplicant
+	if (pending) {
 		pending.abort();
+		iface_supplicant_start(pending.phydev);
+	}
 
 	delete hostapd.data.apsta_freq[name];
 	delete hostapd.data.apsta_stopped[name];
@@ -1437,10 +1550,11 @@ function iface_config_remove(name, old_config)
 }
 
 // No fallback to a PHY restart, which would take the other BSSes down.
-function mld_link_bss_remove(phy, name)
+// bss is the object of the hook: hostapd freed the BSS data before the hook,
+// and hostapd.bss still holds the object it released then.
+function mld_link_bss_remove(phy, name, bss)
 {
 	let config = hostapd.data.config[phy];
-	let bss = hostapd.bss[phy]?.[name];
 	if (!config || !bss)
 		return;
 
@@ -1474,11 +1588,97 @@ function mld_link_bss_remove(phy, name)
 	iface_macaddr_prune(phy, config);
 }
 
+const LINK_RELOAD_COUNT = 10;
+const LINK_RELOAD_MARGIN_MS = 1000;
+
+// The links of AP MLDs that a restart of the radio stops while their own BSS
+// stays the same. A non-AP MLD that is not told keeps sending on such a link
+// once it beacons again; an AP removal of the link tells it (IEEE
+// 802.11be-2024 35.3.6.3).
+function iface_reload_links(name, config, old_config)
+{
+	let links = {};
+
+	if (hostapd.interfaces[name]?.state() != "ENABLED")
+		return links;
+
+	for (let prev in old_config?.bss ?? []) {
+		if (!prev.mld_ap)
+			continue;
+
+		let cur = filter(config.bss, (b) => b.ifname == prev.ifname)[0];
+		let bss = hostapd.bss[name]?.[prev.ifname];
+		if (!cur || !bss ||
+		    bss_config_hash(cur.data) != bss_config_hash(prev.data))
+			continue;
+
+		links[prev.ifname] = bss;
+	}
+
+	return links;
+}
+
+function iface_link_reload_restart(name)
+{
+	let reload = hostapd.data.link_reload[name];
+	if (!reload)
+		return;
+
+	hostapd.printf(`Restart interface for phy ${name}`);
+	iface_restart(reload.phydev, reload.config, reload.old_config);
+}
+
+// The restart waits for the expiry of each removal, or for its latest time,
+// where hostapd keeps the link.
+function iface_link_reload_start(name, phydev, config, old_config)
+{
+	let reload = { phydev, config, old_config, links: {} };
+	let wait_ms = 0;
+
+	for (let ifname, bss in iface_reload_links(name, config, old_config)) {
+		let removal = bss.link_remove?.(LINK_RELOAD_COUNT);
+		if (!removal)
+			continue;
+
+		reload.links[ifname] = true;
+		wait_ms = max(wait_ms, removal.removal_ms);
+	}
+
+	if (!length(reload.links))
+		return false;
+
+	hostapd.printf(`Announce the removal of ${join(", ", keys(reload.links))} on phy ${name} before its restart`);
+	reload.timer = uloop.timer(wait_ms + LINK_RELOAD_MARGIN_MS,
+				   () => iface_link_reload_restart(name));
+	hostapd.data.link_reload[name] = reload;
+
+	return true;
+}
+
+function iface_link_reload_expired(phy, name)
+{
+	let reload = hostapd.data.link_reload[phy];
+	if (!reload?.links[name])
+		return false;
+
+	delete reload.links[name];
+	if (!length(reload.links))
+		reload.timer.set(0);
+
+	return true;
+}
+
 function iface_set_config(name, config)
 {
 	let old_config = hostapd.data.config[name];
+	let reload = hostapd.data.link_reload[name];
+
+	// The radio runs the configuration from before the announced restart
+	if (reload)
+		old_config = reload.old_config;
 
 	if (!config) {
+		iface_link_reload_cancel(name);
 		delete hostapd.data.config[name];
 		return iface_config_remove(name, old_config);
 	}
@@ -1495,8 +1695,15 @@ function iface_set_config(name, config)
 	config.orig_bss = [ ...config.bss ];
 	iface_check_mld(phydev, name, config);
 	if (!length(config.bss)) {
+		iface_link_reload_cancel(name);
 		iface_macaddr_prune(name, config);
 		return iface_config_remove(name, old_config);
+	}
+
+	if (reload) {
+		reload.phydev = phydev;
+		reload.config = config;
+		return 0;
 	}
 
 	try {
@@ -1508,6 +1715,9 @@ function iface_set_config(name, config)
 	} catch (e) {
 		hostapd.printf(`Error reloading config: ${e}\n${e.stacktrace[0].context}`);
 	}
+
+	if (iface_link_reload_start(name, phydev, config, old_config))
+		return 0;
 
 	hostapd.printf(`Restart interface for phy ${name}`);
 	let ret = iface_restart(phydev, config, old_config);
@@ -2398,7 +2608,8 @@ return {
 		bss_event("remove", name);
 	},
 	bss_link_removed: function(phy, name, obj) {
-		mld_link_bss_remove(phy, name);
+		if (!iface_link_reload_expired(phy, name))
+			mld_link_bss_remove(phy, name, obj);
 	},
 	sta_auth: function(iface, sta) {
 		let msg = { iface, sta };
