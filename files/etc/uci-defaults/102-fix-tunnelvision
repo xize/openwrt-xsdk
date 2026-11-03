@@ -1,0 +1,10 @@
+#!/bin/sh
+
+if [ "$(uci -q get xsdk.@factory[0].init)" != "1" ];
+then
+	uci set network.wan.classlessroute="0"
+	uci commit network
+fi
+
+exit 0
+

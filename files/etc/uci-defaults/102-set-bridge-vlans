@@ -1,0 +1,222 @@
+#!/bin/sh
+
+
+# lan1-lan8+wan
+
+if [ "$(uci -q get xsdk.@factory[0].enabled)" != "1" ];
+then
+uci batch << EO
+	add network bridge-vlan
+	set network.@bridge-vlan[-1].device='br-lan'
+	add_list network.@bridge-vlan[-1].ports='lan1:u*'
+	add_list network.@bridge-vlan[-1].ports='lan2:u*'
+	add_list network.@bridge-vlan[-1].ports='lan3:u*'
+	add_list network.@bridge-vlan[-1].ports='lan4:u*'
+	add_list network.@bridge-vlan[-1].ports='lan5:u*'
+	add_list network.@bridge-vlan[-1].ports='lan6:u*'
+	add_list network.@bridge-vlan[-1].ports='lan7:u*'
+	add_list network.@bridge-vlan[-1].ports='lan8:u*'
+	add_list network.@bridge-vlan[-1].ports='wan:u*'
+	set network.@bridge-vlan[-1].vlan='169'
+	set network.lan.device='br-lan.169'
+	
+
+	add network bridge-vlan
+   	set network.@bridge-vlan[-1].device='br-lan'
+	add_list network.@bridge-vlan[-1].ports='lan1:t'
+	add_list network.@bridge-vlan[-1].ports='lan2:t'
+	add_list network.@bridge-vlan[-1].ports='lan3:t'
+	add_list network.@bridge-vlan[-1].ports='lan4:t'
+	add_list network.@bridge-vlan[-1].ports='lan5:t'
+        add_list network.@bridge-vlan[-1].ports='lan6:t'
+        add_list network.@bridge-vlan[-1].ports='lan7:t'
+        add_list network.@bridge-vlan[-1].ports='lan8:t'
+        add_list network.@bridge-vlan[-1].ports='wan:t'
+    	set network.@bridge-vlan[-1].vlan='23'
+	
+	add network bridge-vlan
+    	set network.@bridge-vlan[-1].device='br-lan'
+	add_list network.@bridge-vlan[-1].ports='lan1:t'
+	add_list network.@bridge-vlan[-1].ports='lan2:t'
+	add_list network.@bridge-vlan[-1].ports='lan3:t'
+	add_list network.@bridge-vlan[-1].ports='lan4:t'
+	add_list network.@bridge-vlan[-1].ports='lan5:t'
+        add_list network.@bridge-vlan[-1].ports='lan6:t'
+        add_list network.@bridge-vlan[-1].ports='lan7:t'
+        add_list network.@bridge-vlan[-1].ports='lan8:t'
+        add_list network.@bridge-vlan[-1].ports='wan:t'
+   	set network.@bridge-vlan[-1].vlan='49'
+	
+	add network bridge-vlan
+    	set network.@bridge-vlan[-1].device='br-lan'
+	add_list network.@bridge-vlan[-1].ports='lan1:t'
+	add_list network.@bridge-vlan[-1].ports='lan2:t'
+	add_list network.@bridge-vlan[-1].ports='lan3:t'
+	add_list network.@bridge-vlan[-1].ports='lan4:t'
+	add_list network.@bridge-vlan[-1].ports='lan5:t'
+        add_list network.@bridge-vlan[-1].ports='lan6:t'
+        add_list network.@bridge-vlan[-1].ports='lan7:t'
+        add_list network.@bridge-vlan[-1].ports='lan8:t'
+        add_list network.@bridge-vlan[-1].ports='wan:t'
+    	set network.@bridge-vlan[-1].vlan='50'
+	
+	add network bridge-vlan
+    	set network.@bridge-vlan[-1].device='br-lan'
+	add_list network.@bridge-vlan[-1].ports='lan1:t'
+	add_list network.@bridge-vlan[-1].ports='lan2:t'
+	add_list network.@bridge-vlan[-1].ports='lan3:t'
+	add_list network.@bridge-vlan[-1].ports='lan4:t'
+	add_list network.@bridge-vlan[-1].ports='lan5:t'
+        add_list network.@bridge-vlan[-1].ports='lan6:t'
+        add_list network.@bridge-vlan[-1].ports='lan7:t'
+        add_list network.@bridge-vlan[-1].ports='lan8:t'
+        add_list network.@bridge-vlan[-1].ports='wan:t'
+    	set network.@bridge-vlan[-1].vlan='51'
+
+	add network bridge-vlan
+    	set network.@bridge-vlan[-1].device='br-lan'
+	add_list network.@bridge-vlan[-1].ports='lan1:t'
+	add_list network.@bridge-vlan[-1].ports='lan2:t'
+	add_list network.@bridge-vlan[-1].ports='lan3:t'
+	add_list network.@bridge-vlan[-1].ports='lan4:t'
+	add_list network.@bridge-vlan[-1].ports='lan5:t'
+        add_list network.@bridge-vlan[-1].ports='lan6:t'
+        add_list network.@bridge-vlan[-1].ports='lan7:t'
+        add_list network.@bridge-vlan[-1].ports='lan8:t'
+        add_list network.@bridge-vlan[-1].ports='wan:t'
+    	set network.@bridge-vlan[-1].vlan='52'
+	
+	add network bridge-vlan
+    	set network.@bridge-vlan[-1].device='br-lan'
+	add_list network.@bridge-vlan[-1].ports='lan1:t'
+	add_list network.@bridge-vlan[-1].ports='lan2:t'
+	add_list network.@bridge-vlan[-1].ports='lan3:t'
+	add_list network.@bridge-vlan[-1].ports='lan4:t'
+	add_list network.@bridge-vlan[-1].ports='lan5:t'
+        add_list network.@bridge-vlan[-1].ports='lan6:t'
+        add_list network.@bridge-vlan[-1].ports='lan7:t'
+        add_list network.@bridge-vlan[-1].ports='lan8:t'
+        add_list network.@bridge-vlan[-1].ports='wan:t'
+    	set network.@bridge-vlan[-1].vlan='53'
+	
+	add network bridge-vlan
+    	set network.@bridge-vlan[-1].device='br-lan'
+	add_list network.@bridge-vlan[-1].ports='lan1:t'
+	add_list network.@bridge-vlan[-1].ports='lan2:t'
+	add_list network.@bridge-vlan[-1].ports='lan3:t'
+	add_list network.@bridge-vlan[-1].ports='lan4:t'
+	add_list network.@bridge-vlan[-1].ports='lan5:t'
+        add_list network.@bridge-vlan[-1].ports='lan6:t'
+        add_list network.@bridge-vlan[-1].ports='lan7:t'
+        add_list network.@bridge-vlan[-1].ports='lan8:t'
+        add_list network.@bridge-vlan[-1].ports='wan:t'
+    	set network.@bridge-vlan[-1].vlan='89'
+
+	add network bridge-vlan
+    	set network.@bridge-vlan[-1].device='br-lan'
+	add_list network.@bridge-vlan[-1].ports='lan1:t'
+	add_list network.@bridge-vlan[-1].ports='lan2:t'
+	add_list network.@bridge-vlan[-1].ports='lan3:t'
+	add_list network.@bridge-vlan[-1].ports='lan4:t'
+        add_list network.@bridge-vlan[-1].ports='lan6:t'
+        add_list network.@bridge-vlan[-1].ports='lan7:t'
+        add_list network.@bridge-vlan[-1].ports='lan8:t'
+        add_list network.@bridge-vlan[-1].ports='wan:t'
+	set network.@bridge-vlan[-1].vlan='90'
+	
+	add network bridge-vlan
+    	set network.@bridge-vlan[-1].device='br-lan'
+	add_list network.@bridge-vlan[-1].ports='lan1:t'
+	add_list network.@bridge-vlan[-1].ports='lan2:t'
+	add_list network.@bridge-vlan[-1].ports='lan3:t'
+	add_list network.@bridge-vlan[-1].ports='lan4:t'
+	add_list network.@bridge-vlan[-1].ports='lan5:t'
+        add_list network.@bridge-vlan[-1].ports='lan6:t'
+        add_list network.@bridge-vlan[-1].ports='lan7:t'
+        add_list network.@bridge-vlan[-1].ports='lan8:t'
+        add_list network.@bridge-vlan[-1].ports='wan:t'
+	set network.@bridge-vlan[-1].vlan='178'
+	
+	add network bridge-vlan
+    	set network.@bridge-vlan[-1].device='br-lan'
+	add_list network.@bridge-vlan[-1].ports='lan1:t'
+	add_list network.@bridge-vlan[-1].ports='lan2:t'
+	add_list network.@bridge-vlan[-1].ports='lan3:t'
+	add_list network.@bridge-vlan[-1].ports='lan4:t'
+	add_list network.@bridge-vlan[-1].ports='lan5:t'
+        add_list network.@bridge-vlan[-1].ports='lan6:t'
+        add_list network.@bridge-vlan[-1].ports='lan7:t'
+        add_list network.@bridge-vlan[-1].ports='lan8:t'
+        add_list network.@bridge-vlan[-1].ports='wan:t'
+	set network.@bridge-vlan[-1].vlan='179'
+	
+	add network bridge-vlan
+    	set network.@bridge-vlan[-1].device='br-lan'
+	add_list network.@bridge-vlan[-1].ports='lan1:t'
+	add_list network.@bridge-vlan[-1].ports='lan2:t'
+	add_list network.@bridge-vlan[-1].ports='lan3:t'
+	add_list network.@bridge-vlan[-1].ports='lan4:t'
+	add_list network.@bridge-vlan[-1].ports='lan5:t'
+        add_list network.@bridge-vlan[-1].ports='lan6:t'
+        add_list network.@bridge-vlan[-1].ports='lan7:t'
+        add_list network.@bridge-vlan[-1].ports='lan8:t'
+        add_list network.@bridge-vlan[-1].ports='wan:t'
+ 	set network.@bridge-vlan[-1].vlan='180'
+
+	add network bridge-vlan
+    	set network.@bridge-vlan[-1].device='br-lan'
+	add_list network.@bridge-vlan[-1].ports='lan1:t'
+	add_list network.@bridge-vlan[-1].ports='lan2:t'
+	add_list network.@bridge-vlan[-1].ports='lan3:t'
+	add_list network.@bridge-vlan[-1].ports='lan4:t'
+	add_list network.@bridge-vlan[-1].ports='lan5:t'
+        add_list network.@bridge-vlan[-1].ports='lan6:t'
+        add_list network.@bridge-vlan[-1].ports='lan7:t'
+        add_list network.@bridge-vlan[-1].ports='lan8:t'
+        add_list network.@bridge-vlan[-1].ports='wan:t'
+  	set network.@bridge-vlan[-1].vlan='62'
+
+	add network bridge-vlan
+    	set network.@bridge-vlan[-1].device='br-lan'
+	add_list network.@bridge-vlan[-1].ports='lan1:t'
+	add_list network.@bridge-vlan[-1].ports='lan2:t'
+	add_list network.@bridge-vlan[-1].ports='lan3:t'
+	add_list network.@bridge-vlan[-1].ports='lan4:t'
+	add_list network.@bridge-vlan[-1].ports='lan5:t'
+        add_list network.@bridge-vlan[-1].ports='lan6:t'
+        add_list network.@bridge-vlan[-1].ports='lan7:t'
+        add_list network.@bridge-vlan[-1].ports='lan8:t'
+        add_list network.@bridge-vlan[-1].ports='wan:t'
+    	set network.@bridge-vlan[-1].vlan='70'
+
+	add network bridge-vlan
+    	set network.@bridge-vlan[-1].device='br-lan'
+	add_list network.@bridge-vlan[-1].ports='lan1:t'
+	add_list network.@bridge-vlan[-1].ports='lan2:t'
+	add_list network.@bridge-vlan[-1].ports='lan3:t'
+	add_list network.@bridge-vlan[-1].ports='lan4:t'
+	add_list network.@bridge-vlan[-1].ports='lan5:t'
+        add_list network.@bridge-vlan[-1].ports='lan6:t'
+        add_list network.@bridge-vlan[-1].ports='lan7:t'
+        add_list network.@bridge-vlan[-1].ports='lan8:t'
+        add_list network.@bridge-vlan[-1].ports='wan:t'
+    	set network.@bridge-vlan[-1].vlan='71'
+
+    	add network bridge-vlan
+    	set network.@bridge-vlan[-1].device='br-lan'
+	add_list network.@bridge-vlan[-1].ports='lan1:t'
+	add_list network.@bridge-vlan[-1].ports='lan2:t'
+	add_list network.@bridge-vlan[-1].ports='lan3:t'
+	add_list network.@bridge-vlan[-1].ports='lan4:t'
+  	add_list network.@bridge-vlan[-1].ports='lan5:t'
+        add_list network.@bridge-vlan[-1].ports='lan6:t'
+        add_list network.@bridge-vlan[-1].ports='lan7:t'
+        add_list network.@bridge-vlan[-1].ports='lan8:t'
+        add_list network.@bridge-vlan[-1].ports='wan:t'
+	set network.@bridge-vlan[-1].vlan='133'
+EO
+	uci commit network	
+fi
+
+exit 0
+

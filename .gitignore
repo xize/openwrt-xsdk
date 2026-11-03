@@ -3,6 +3,7 @@
 .*.swp
 /env
 /dl
+/xsdk-uci-defaults
 /.config
 /.config.old
 /.toolchain_build_ver
@@ -13,7 +14,6 @@
 /logs
 /feeds
 /feeds.conf
-/files
 /target/linux/feeds
 /overlay
 /package/feeds
@@ -34,5 +34,4 @@ git-src
 .project
 .cproject
 .ccache
-.sccache
 .vscode*
