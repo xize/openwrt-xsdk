@@ -397,7 +397,7 @@ struct rtldsa_config {
 	int pri_sel_port_pri;
 	int pri_sel_remap_dscp;
 	int pri_sel_port_tbl_idx;
-	void (*stp_init)(void);
+	void (*stp_init)(struct otto_dsa_priv *priv);
 	void (*vlan_tables_read)(u32 vlan, struct otto_vlan_info *info);
 	void (*vlan_set_tagged)(u32 vlan, struct otto_vlan_info *info);
 	void (*vlan_set_untagged)(u32 vlan, u64 portmask);
@@ -412,8 +412,8 @@ struct rtldsa_config {
 	void (*vlan_port_keep_tag_set)(struct otto_dsa_priv *priv, int port, bool keep_outer,
 				       bool keep_inner);
 	int (*fast_age)(struct otto_dsa_priv *priv, int port, int vid);
-	void (*set_vlan_igr_filter)(struct otto_dsa_priv *priv, int port, enum igr_filter state);
-	void (*set_vlan_egr_filter)(struct otto_dsa_priv *priv, int port, enum egr_filter state);
+	void (*vlan_set_igr_filter)(struct otto_dsa_priv *priv, int port, enum igr_filter state);
+	void (*vlan_set_egr_filter)(struct otto_dsa_priv *priv, int port, enum egr_filter state);
 	void (*enable_learning)(struct otto_dsa_priv *priv, int port, bool enable);
 	void (*set_l2_new_sa_trap)(struct otto_dsa_priv *priv, int port, bool trap);
 	void (*enable_flood)(struct otto_dsa_priv *priv, int port, bool enable);
