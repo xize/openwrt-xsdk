@@ -1,0 +1,12 @@
+--- a/drivers/net/phy/sfp.c
++++ b/drivers/net/phy/sfp.c
+@@ -569,6 +569,9 @@ static const struct sfp_quirk sfp_quirks[] = {
+
+        SFP_QUIRK_F("BIDB", "X-ONU-SFPP", sfp_fixup_potron),
+
++       // Add unknown OEM device.
++       SFP_QUIRK_F("OEM", "SFP+-10G-T", sfp_fixup_ignore_tx_fault),
++
+        // FLYPRO SFP-10GT-CS-30M uses Rollball protocol to talk to the PHY.
+        SFP_QUIRK_F("FLYPRO", "SFP-10GT-CS-30M", sfp_fixup_rollball),
+
