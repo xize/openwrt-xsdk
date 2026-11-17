@@ -1,0 +1,14 @@
+Index: linux-6.18.60/drivers/net/phy/sfp.c
+===================================================================
+--- a/drivers/net/phy/sfp.c
++++ b/drivers/net/phy/sfp.c
+@@ -500,6 +500,9 @@ static void sfp_quirk_ubnt_uf_instant(co
+ #define SFP_QUIRK_F(_v, _p, _f) SFP_QUIRK(_v, _p, NULL, _f)
+ 
+ static const struct sfp_quirk sfp_quirks[] = {
++	// Add quirk for unbrand sfp+ SFP-10G-T
++	SFP_QUIRK_F("OEM", "SFP-10G-T", sfp_fixup_ignore_los),
++
+ 	// Alcatel Lucent G-010S-P can operate at 2500base-X, but incorrectly
+ 	// report 2500MBd NRZ in their EEPROM
+ 	SFP_QUIRK("ALCATELLUCENT", "G010SP", sfp_quirk_2500basex,
